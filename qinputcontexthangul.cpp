@@ -4,9 +4,6 @@
 #include <qstring.h>
 #include <qevent.h>
 
-#include <X11/Xlib.h>
-#undef KeyRelease
-
 #include "hangul.h"
 #include "qinputcontexthangul.h"
 
@@ -67,20 +64,11 @@ QString QInputContextHangul::language()
 
 void QInputContextHangul::setFocus()
 {
-    Display *display = QPaintDevice::x11AppDisplay();
-    Window window = RootWindow(display, QPaintDevice::x11AppScreen());
-    Atom status = XInternAtom(display, "_HANGUL_INPUT_MODE", False);
-    Atom type = XInternAtom(display, "INTEGER", False);
-
-    long data = 0;
     if (m_mode == MODE_DIRECT) {
-	data = 1;
+	setModeInfo(1);
     } else {
-	data = 2;
+	setModeInfo(2);
     }
-    XChangeProperty(display, window,
-		    status, type, 32, PropModeReplace,
-		    (const unsigned char *)&data, 1);
 
     qDebug("Hangul::setFocus");
 }
@@ -94,15 +82,7 @@ void QInputContextHangul::unsetFocus()
     }
     m_composer.reset();
 
-    Display *display = QPaintDevice::x11AppDisplay();
-    Window window = RootWindow(display, QPaintDevice::x11AppScreen());
-    Atom status = XInternAtom(display, "_HANGUL_INPUT_MODE", False);
-    Atom type = XInternAtom(display, "INTEGER", False);
-
-    const long data = 0;
-    XChangeProperty(display, window,
-		    status, type, 32, PropModeReplace,
-		    (const unsigned char *)&data, 1);
+    setModeInfo(2);
 
     qDebug("Hangul::unsetFocus");
 }
@@ -171,23 +151,16 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
 
     if (keyevent->key() == Qt::Key_Space &&
 	(keyevent->state() & Qt::ShiftButton) == Qt::ShiftButton) {
-	long data = 0;
+	int mode = 0;
 	if (m_mode == MODE_DIRECT) {
 	    m_mode = MODE_HANGUL;
-	    data = 2;
+	    mode = 2;
 	} else {
 	    m_composer.reset();
 	    m_mode = MODE_DIRECT;
-	    data = 1;
+	    mode = 1;
 	}
-
-	Display *display = QPaintDevice::x11AppDisplay();
-	Window window = RootWindow(display, QPaintDevice::x11AppScreen());
-	Atom status = XInternAtom(display, "_HANGUL_INPUT_MODE", False);
-	Atom type = XInternAtom(display, "INTEGER", False);
-	XChangeProperty(display, window,
-			status, type, 32, PropModeReplace,
-			(const unsigned char *)&data, 1);
+	setModeInfo(mode);
 
 	return true;
     }

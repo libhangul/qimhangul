@@ -21,3 +21,7 @@ SOURCES += \
     hangul.c \
     hangulcomposer.cpp \
     candidatelist.cpp
+
+unix {
+    SOURCES += qinputcontexthangul_x11.cpp
+}
