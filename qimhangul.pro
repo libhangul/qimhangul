@@ -1,6 +1,7 @@
 # qimhangul project file
 
 TEMPLATE = lib
+TARGET = qimhangul
 
 target.path = $(QTDIR)/plugins/inputmethods
 INSTALLS += target
