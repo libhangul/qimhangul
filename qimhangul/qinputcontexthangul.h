@@ -2,6 +2,7 @@
 #include <wchar.h>
 
 #include "hangulcomposer.h"
+#include "candidatelist.h"
 
 #include <qinputcontext.h>
 
@@ -26,11 +27,12 @@ public:
     virtual QCString identifierName();
     virtual QCString language();
 
-    bool filterEvent( const QEvent *event);
+    virtual bool filterEvent( const QEvent *event);
 
-    void setFocus();
-    void unsetFocus();
-    void reset();
+    virtual void setFocus();
+    virtual void unsetFocus();
+    virtual void setMicroFocus( int x, int y, int w, int h, QFont *f = 0 );
+    virtual void reset();
 
     friend class HangulComposer;
 
@@ -42,8 +44,11 @@ private:
 
     void preeditUpdate(const QString &preeditString);
     void commit(const QString &preeditString);
+    bool popupCandidateList();
 
+    CandidateList *m_candidateList;
     HangulComposer m_composer;
     InputMode m_mode;
+    QRect m_rect;
 };
 
