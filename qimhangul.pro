@@ -12,19 +12,18 @@ CONFIG += debug plugin qt thread
 
 # Input
 HEADERS += \
-    keyboard.h \
-    candidatetable.h \
     qinputcontexthangul.h \
     qinputcontextpluginhangul.h \
     hangul.h \
-    hangulcomposer.h \
+    hangulkeyboard.h \
+    candidatetable.h \
     candidatelist.h
 
 SOURCES += \
     qinputcontexthangul.cpp \
     qinputcontextpluginhangul.cpp \
-    hangul.c \
-    hangulcomposer.cpp \
+    hangulctype.c \
+    hangulinputcontext.c \
     candidatelist.cpp
 
 unix {

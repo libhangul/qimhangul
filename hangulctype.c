@@ -1,5 +1,5 @@
-/* Nabi - X Input Method server for hangul
- * Copyright (C) 2003,2004 Choe Hwanjin
+/* libhangul
+ * Copyright (C) 2004 Choe Hwanjin
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,18 +16,31 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
-#include <stdint.h>
 #include <wchar.h>
 
 #include "hangul.h"
 
-#define HCF 0x115f	/* hangul choseong filler */
-#define HJF 0x1160	/* hangul jungseong filler */
+bool
+hangul_is_choseong(wchar_t ch)
+{
+    return ch >= 0x1100 && ch <= 0x1159;
+}
 
-#define hangul_is_choseong(ch)	((ch) >= 0x1100 && (ch) <= 0x1159)
-#define hangul_is_jungseong(ch)	((ch) >= 0x1161 && (ch) <= 0x11a2)
-#define hangul_is_jongseong(ch)	((ch) >= 0x11a7 && (ch) <= 0x11f9)
+bool
+hangul_is_jungseong(wchar_t ch)
+{
+    return ch >= 0x1161 && ch <= 0x11a2;
+}
+
+bool
+hangul_is_jongseong(wchar_t ch)
+{
+    return ch >= 0x11a7 && ch <= 0x11f9;
+}
 
 wchar_t
 hangul_choseong_to_cjamo(wchar_t ch)
@@ -51,8 +64,9 @@ hangul_choseong_to_cjamo(wchar_t ch)
 	0x314b,	    /* 0x110f */
 	0x314c,	    /* 0x1110 */
 	0x314d,	    /* 0x1111 */
-	0x314e	    /* 0x1112 */
+	0x314e,	    /* 0x1112 */
     };
+
     if (ch < 0x1100 || ch > 0x1112)
 	return ch;
     return table[ch - 0x1100];
@@ -84,6 +98,7 @@ hangul_jungseong_to_cjamo(wchar_t ch)
 	0x3162,	    /* 0x1174 */
 	0x3163	    /* 0x1175 */
     };
+
     if (ch < 0x1161 || ch > 0x1175)
 	return 0;
     return table[ch - 0x1161];
@@ -121,6 +136,7 @@ hangul_jongseong_to_cjamo(wchar_t ch)
 	0x314d,	    /* 0x11c1 */
 	0x314e	    /* 0x11c2 */
     };
+
     if (ch < 0x11a8 || ch > 0x11c2)
 	return 0;
     return table[ch - 0x11a8];
@@ -130,25 +146,25 @@ wchar_t
 hangul_choseong_to_jongseong(wchar_t ch)
 {
     static wchar_t table[] = {
-      0x11a8,  /* choseong kiyeok      -> jongseong kiyeok      */
-      0x11a9,  /* choseong ssangkiyeok -> jongseong ssangkiyeok */
-      0x11ab,  /* choseong nieun       -> jongseong nieun       */
-      0x11ae,  /* choseong tikeut      -> jongseong tikeut      */
-      0x0,     /* choseong ssangtikeut -> jongseong tikeut      */
-      0x11af,  /* choseong rieul       -> jongseong rieul       */
-      0x11b7,  /* choseong mieum       -> jongseong mieum       */
-      0x11b8,  /* choseong pieup       -> jongseong pieup       */
-      0x0,     /* choseong ssangpieup  -> jongseong pieup       */
-      0x11ba,  /* choseong sios        -> jongseong sios        */
-      0x11bb,  /* choseong ssangsios   -> jongseong ssangsios   */
-      0x11bc,  /* choseong ieung       -> jongseong ieung       */
-      0x11bd,  /* choseong cieuc       -> jongseong cieuc       */
-      0x0,     /* choseong ssangcieuc  -> jongseong cieuc       */
-      0x11be,  /* choseong chieuch     -> jongseong chieuch     */
-      0x11bf,  /* choseong khieukh     -> jongseong khieukh     */
-      0x11c0,  /* choseong thieuth     -> jongseong thieuth     */
-      0x11c1,  /* choseong phieuph     -> jongseong phieuph     */
-      0x11c2   /* choseong hieuh       -> jongseong hieuh       */
+	0x11a8,  /* choseong kiyeok      -> jongseong kiyeok      */
+	0x11a9,  /* choseong ssangkiyeok -> jongseong ssangkiyeok */
+	0x11ab,  /* choseong nieun       -> jongseong nieun       */
+	0x11ae,  /* choseong tikeut      -> jongseong tikeut      */
+	0x0,     /* choseong ssangtikeut -> jongseong tikeut      */
+	0x11af,  /* choseong rieul       -> jongseong rieul       */
+	0x11b7,  /* choseong mieum       -> jongseong mieum       */
+	0x11b8,  /* choseong pieup       -> jongseong pieup       */
+	0x0,     /* choseong ssangpieup  -> jongseong pieup       */
+	0x11ba,  /* choseong sios        -> jongseong sios        */
+	0x11bb,  /* choseong ssangsios   -> jongseong ssangsios   */
+	0x11bc,  /* choseong ieung       -> jongseong ieung       */
+	0x11bd,  /* choseong cieuc       -> jongseong cieuc       */
+	0x0,     /* choseong ssangcieuc  -> jongseong cieuc       */
+	0x11be,  /* choseong chieuch     -> jongseong chieuch     */
+	0x11bf,  /* choseong khieukh     -> jongseong khieukh     */
+	0x11c0,  /* choseong thieuth     -> jongseong thieuth     */
+	0x11c1,  /* choseong phieuph     -> jongseong phieuph     */
+	0x11c2   /* choseong hieuh       -> jongseong hieuh       */
     };
     if (ch < 0x1100 || ch > 0x1112)
 	return 0;
@@ -195,7 +211,7 @@ hangul_jongseong_to_choseong(wchar_t ch)
 void
 hangul_jongseong_dicompose(wchar_t ch, wchar_t* jong, wchar_t* cho)
 {
-static wchar_t table[][2] = {
+    static wchar_t table[][2] = {
     { 0,      0x1100 }, /* jong kiyeok	      = cho  kiyeok               */
     { 0x11a8, 0x1100 }, /* jong ssangkiyeok   = jong kiyeok + cho kiyeok  */
     { 0x11a8, 0x1109 }, /* jong kiyeok-sios   = jong kiyeok + cho sios    */
@@ -223,7 +239,8 @@ static wchar_t table[][2] = {
     { 0,      0x1110 }, /* jong thieuth       = cho  thieuth              */
     { 0,      0x1111 }, /* jong phieuph       = cho  phieuph              */
     { 0,      0x1112 }  /* jong hieuh         = cho  hieuh                */
-};
+    };
+
     *jong = table[ch - 0x11a8][0];
     *cho  = table[ch - 0x11a8][1];
 }
@@ -257,60 +274,4 @@ hangul_jamo_to_syllable(wchar_t choseong, wchar_t jungseong, wchar_t jongseong)
     ch = ((choseong * njungseong) + jungseong) * njongseong + jongseong
 	+ hangul_base;
     return ch;
-}
-
-wchar_t
-hangul_compose(wchar_t first, wchar_t second)
-{
-    static const struct {
-	uint32_t key;
-	wchar_t code;
-    } compose_table[] = {
-	{ 0x11001100, 0x1101 },  /* cho  kiyeok + kiyeok  = ssangkiyeok   */
-	{ 0x11031103, 0x1104 },  /* cho  tikeut + tikeut  = ssangtikeut   */
-	{ 0x11071107, 0x1108 },  /* cho  pieup  + pieup   = ssangpieup    */
-	{ 0x11091109, 0x110a },  /* cho  sios   + sios    = ssangsios     */
-	{ 0x110c110c, 0x110d },  /* cho  cieuc  + cieuc   = ssangcieuc    */
-	{ 0x11691161, 0x116a },  /* jung o      + a       = wa 	          */
-	{ 0x11691162, 0x116b },  /* jung o      + ae      = wae           */
-	{ 0x11691175, 0x116c },  /* jung o      + i       = oe 	          */
-	{ 0x116e1165, 0x116f },  /* jung u      + eo      = weo 	  */
-	{ 0x116e1166, 0x1170 },  /* jung u      + e       = we 	          */
-	{ 0x116e1175, 0x1171 },  /* jung u      + i       = wi 	          */
-	{ 0x11731175, 0x1174 },  /* jung eu     + i       = yi 	          */
-	{ 0x11a811a8, 0x11a9 },  /* jong kiyeok + kiyeok  = ssangekiyeok  */
-	{ 0x11a811ba, 0x11aa },  /* jong kiyeok + sios    = kiyeok-sois   */
-	{ 0x11ab11bd, 0x11ac },  /* jong nieun  + cieuc   = nieun-cieuc   */
-	{ 0x11ab11c2, 0x11ad },  /* jong nieun  + hieuh   = nieun-hieuh   */
-	{ 0x11af11a8, 0x11b0 },  /* jong rieul  + kiyeok  = rieul-kiyeok  */
-	{ 0x11af11b7, 0x11b1 },  /* jong rieul  + mieum   = rieul-mieum   */
-	{ 0x11af11b8, 0x11b2 },  /* jong rieul  + pieup   = rieul-pieup   */
-	{ 0x11af11ba, 0x11b3 },  /* jong rieul  + sios    = rieul-sios    */
-	{ 0x11af11c0, 0x11b4 },  /* jong rieul  + thieuth = rieul-thieuth */
-	{ 0x11af11c1, 0x11b5 },  /* jong rieul  + phieuph = rieul-phieuph */
-	{ 0x11af11c2, 0x11b6 },  /* jong rieul  + hieuh   = rieul-hieuh   */
-	{ 0x11b811ba, 0x11b9 },  /* jong pieup  + sios    = pieup-sios    */
-	{ 0x11ba11ba, 0x11bb }   /* jong sios   + sios    = ssangsios     */
-    };
-
-    int min, max, mid;
-    uint32_t key;
-
-    /* make key */
-    key = first << 16 | second;
-
-    /* binary search in table */
-    min = 0;
-    max = sizeof(compose_table) / sizeof(compose_table[0]) - 1;
-
-    while (max >= min) {
-	mid = (min + max) / 2;
-	if (compose_table[mid].key < key)
-	    min = mid + 1;
-	else if (compose_table[mid].key > key)
-	    max = mid - 1;
-	else
-	    return compose_table[mid].code;
-    }
-    return 0;
 }

@@ -25,48 +25,32 @@
 #include "hangul.h"
 #include "qinputcontexthangul.h"
 
-HangulComposer::HangulComposer(hangul::ComposerBase::Keyboard keyboard, QInputContextHangul *context) :
-    ComposerBase(keyboard),
-    m_context(context)
+static inline QString wcsToQString(const wchar_t *wcs)
 {
-}
-
-QString HangulComposer::getPreeditQString(hangul::widestring &text)
-{
-    QChar ch(0);
     QString str;
-    hangul::widestring::iterator iter;
 
-    for (iter = text.begin(); iter != text.end(); ++iter) {
-	ch = (uint)(*iter);
-	str += ch;
+    if (wcs != NULL) {
+	while (*wcs != L'\0')
+	    str += QChar(*wcs++);
     }
     return str;
 }
 
-void HangulComposer::preeditUpdate(hangul::widestring &text)
-{
-    QString preeditString = getPreeditQString(text);
-    m_context->preeditUpdate(preeditString);
-}
-
-void HangulComposer::commit(hangul::widestring &text)
-{
-    QString preeditString = getPreeditQString(text);
-    m_context->commit(preeditString);
-}
-
-QInputContextHangul::QInputContextHangul(hangul::ComposerBase::Keyboard keyboard) :
+QInputContextHangul::QInputContextHangul(HangulKeyboardType keyboard) :
     m_candidateList(NULL),
-    m_composer(keyboard, this),
     m_mode(MODE_DIRECT),
     m_rect(0, 0, 0, 0)
 {
+    m_hic = hangul_ic_new(keyboard);
+
     qDebug("Hangul::");
 }
 
 QInputContextHangul::~QInputContextHangul()
 {
+    if (m_hic != NULL)
+	hangul_ic_delete(m_hic);
+
     qDebug("Hangul::~");
 }
 
@@ -91,9 +75,8 @@ void QInputContextHangul::unsetFocus()
     if (m_candidateList != NULL) {
 	delete m_candidateList;
 	m_candidateList = NULL;
-	m_composer.reset();
     }
-    m_composer.reset();
+    reset();
 
     setModeInfo(MODE_NONE);
 
@@ -110,30 +93,70 @@ void QInputContextHangul::setMicroFocus(int x, int y, int w, int h, QFont* /*f*/
 
 void QInputContextHangul::reset()
 {
-    m_composer.reset();
+    hangul_ic_reset(m_hic);
+
+    // we do not send preedit update IMEvent
+    // because commit() send IMEnd event and it remove preedit string
+    // QString preeditString = getPreeditString();
+    // updatePreedit(preeditString);
+
+    QString commitString = getCommitString();
+    if (!commitString.isEmpty()) {
+	commit(commitString);
+    } else {
+	if (isComposing())
+	    sendIMEvent(QEvent::IMEnd, QString::null);
+    }
+
     qDebug("Hangul::reset");
 }
 
-void QInputContextHangul::preeditUpdate(const QString &preeditString)
+QString QInputContextHangul::getPreeditString()
 {
-    if (!isComposing()) {
-	sendIMEvent(QEvent::IMStart);
-    }
-    sendIMEvent(QEvent::IMCompose, preeditString, preeditString.length());
+    return wcsToQString(hangul_ic_get_preedit_string(m_hic));
 }
 
-void QInputContextHangul::commit(const QString &preeditString)
+QString QInputContextHangul::getCommitString()
+{
+    return wcsToQString(hangul_ic_get_commit_string(m_hic));
+}
+
+void QInputContextHangul::updatePreedit(const QString &str)
 {
     if (!isComposing()) {
 	sendIMEvent(QEvent::IMStart);
     }
-    sendIMEvent(QEvent::IMEnd, preeditString);
+    sendIMEvent(QEvent::IMCompose, str, str.length());
+}
+
+void QInputContextHangul::commit(const QString &str)
+{
+    if (!isComposing()) {
+	sendIMEvent(QEvent::IMStart);
+    }
+    sendIMEvent(QEvent::IMEnd, str);
+}
+
+bool QInputContextHangul::backspace()
+{
+    bool ret = hangul_ic_backspace(m_hic);
+    if (ret) {
+	QString str = getPreeditString();
+	if (!isComposing())
+	    sendIMEvent(QEvent::IMStart);
+
+	if (str.length() > 0)
+	    sendIMEvent(QEvent::IMCompose, str, str.length());
+	else
+	    sendIMEvent(QEvent::IMEnd, QString::null);
+    }
+    return ret;
 }
 
 bool QInputContextHangul::popupCandidateList()
 {
-    hangul::widestring text = m_composer.getPreeditString();
-    if (!text.empty()) {
+    const wchar_t *text = hangul_ic_get_preedit_string(m_hic);
+    if (text != NULL && *text != L'\0') {
 	int index = CandidateList::getTableIndex(text[0]);
 	if (index >= 0) {
 	    m_candidateList = new CandidateList(index,
@@ -154,7 +177,7 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
     if (m_candidateList != NULL) {
 	if (m_candidateList->filterEvent(keyevent)) {
 	    if (m_candidateList->isSelected()) {
-		m_composer.clear();
+		hangul_ic_reset(m_hic);
 		QString candidate(m_candidateList->getCandidate());
 		commit(candidate);
 	    }
@@ -167,16 +190,15 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
     if (keyevent->key() == Qt::Key_Shift)
 	return false;
 
-    if (keyevent->key() == Qt::Key_Backspace) {
-	return m_composer.backspace();
-    }
+    if (keyevent->key() == Qt::Key_Backspace)
+	return backspace();
 
     if (keyevent->key() == Qt::Key_Space &&
 	(keyevent->state() & Qt::ShiftButton) == Qt::ShiftButton) {
 	if (m_mode == MODE_DIRECT) {
 	    m_mode = MODE_HANGUL;
 	} else {
-	    m_composer.reset();
+	    reset();
 	    m_mode = MODE_DIRECT;
 	}
 	setModeInfo(m_mode);
@@ -189,7 +211,23 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
     }
 
     if (m_mode == MODE_HANGUL) {
-	return m_composer.filter(keyevent->ascii());
+	int ascii = keyevent->ascii();
+	if (keyevent->state() & Qt::ShiftButton)
+	    ascii = toupper(ascii);
+	else
+	    ascii = tolower(ascii);
+	
+	bool ret = hangul_ic_filter(m_hic, ascii, false);
+
+	QString commitString = getCommitString();
+	if (!commitString.isEmpty())
+	    commit(commitString);
+
+	QString preeditString = getPreeditString();
+	if (!preeditString.isEmpty())
+	    updatePreedit(preeditString);
+
+	return ret;
     }
 
     return false;

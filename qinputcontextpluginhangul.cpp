@@ -36,6 +36,8 @@ QStringList QInputContextPluginHangul::keys() const
     keys += "hangul2";
     keys += "hangul3f";
     keys += "hangul39";
+    keys += "hangul3s";
+    keys += "hangul3y";
     keys += "hangul32";
     return keys;
 }
@@ -54,6 +56,10 @@ QString QInputContextPluginHangul::displayName( const QString &key )
 	return "Hangul 3 bul final";
     } else if (key == "hangul39") {
 	return "Hangul 3 bul 390";
+    } else if (key == "hangul3s") {
+	return "Hangul 3 bul no-shift";
+    } else if (key == "hangul3y") {
+	return "Hangul 3 bul yetgul";
     } else if (key == "hangul32") {
 	return "Hangul 3 bul 2bul layout";
     }
@@ -69,15 +75,19 @@ QString QInputContextPluginHangul::description( const QString &key )
 QInputContext* QInputContextPluginHangul::create( const QString &key )
 {
     if (key == "hangul2") {
-	return new QInputContextHangul(hangul::ComposerBase::HANGUL2);
+	return new QInputContextHangul(HANGUL_KEYBOARD_2);
     } else if (key == "hangul3f") {
-	return new QInputContextHangul(hangul::ComposerBase::HANGUL3F);
+	return new QInputContextHangul(HANGUL_KEYBOARD_3FINAL);
     } else if (key == "hangul39") {
-	return new QInputContextHangul(hangul::ComposerBase::HANGUL390);
+	return new QInputContextHangul(HANGUL_KEYBOARD_390);
+    } else if (key == "hangul3s") {
+	return new QInputContextHangul(HANGUL_KEYBOARD_3NOSHIFT);
+    } else if (key == "hangul3y") {
+	return new QInputContextHangul(HANGUL_KEYBOARD_3YETGUL);
     } else if (key == "hangul32") {
-	return new QInputContextHangul(hangul::ComposerBase::HANGUL32);
+	return new QInputContextHangul(HANGUL_KEYBOARD_32);
     } else {
-	return new QInputContextHangul(hangul::ComposerBase::HANGUL2);
+	return new QInputContextHangul(HANGUL_KEYBOARD_2);
     }
 
     qDebug("QInputContextPluginHangul::create() - " + key);
