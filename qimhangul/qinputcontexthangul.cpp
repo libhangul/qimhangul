@@ -4,6 +4,9 @@
 #include <qstring.h>
 #include <qevent.h>
 
+#include <X11/Xlib.h>
+#undef KeyRelease
+
 #include "hangul.h"
 #include "qinputcontexthangul.h"
 
@@ -52,25 +55,55 @@ QInputContextHangul::~QInputContextHangul()
     qDebug("Hangul::~");
 }
 
-QCString QInputContextHangul::identifierName()
+QString QInputContextHangul::identifierName()
 {
     return "Hangul";
 }
 
-QCString QInputContextHangul::language()
+QString QInputContextHangul::language()
 {
     return "Hangul";
 }
 
 void QInputContextHangul::setFocus()
 {
+    Display *display = QPaintDevice::x11AppDisplay();
+    Window window = RootWindow(display, QPaintDevice::x11AppScreen());
+    Atom status = XInternAtom(display, "_HANGUL_INPUT_MODE", False);
+    Atom type = XInternAtom(display, "INTEGER", False);
+
+    long data = 0;
+    if (m_mode == MODE_DIRECT) {
+	data = 1;
+    } else {
+	data = 2;
+    }
+    XChangeProperty(display, window,
+		    status, type, 32, PropModeReplace,
+		    (const unsigned char *)&data, 1);
+
     qDebug("Hangul::setFocus");
 }
 
 void QInputContextHangul::unsetFocus()
 {
-    if (m_candidateList == NULL)
+    if (m_candidateList != NULL) {
+	delete m_candidateList;
+	m_candidateList = NULL;
 	m_composer.reset();
+    }
+    m_composer.reset();
+
+    Display *display = QPaintDevice::x11AppDisplay();
+    Window window = RootWindow(display, QPaintDevice::x11AppScreen());
+    Atom status = XInternAtom(display, "_HANGUL_INPUT_MODE", False);
+    Atom type = XInternAtom(display, "INTEGER", False);
+
+    const long data = 0;
+    XChangeProperty(display, window,
+		    status, type, 32, PropModeReplace,
+		    (const unsigned char *)&data, 1);
+
     qDebug("Hangul::unsetFocus");
 }
 
@@ -138,11 +171,24 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
 
     if (keyevent->key() == Qt::Key_Space &&
 	(keyevent->state() & Qt::ShiftButton) == Qt::ShiftButton) {
+	long data = 0;
 	if (m_mode == MODE_DIRECT) {
 	    m_mode = MODE_HANGUL;
+	    data = 2;
 	} else {
+	    m_composer.reset();
 	    m_mode = MODE_DIRECT;
+	    data = 1;
 	}
+
+	Display *display = QPaintDevice::x11AppDisplay();
+	Window window = RootWindow(display, QPaintDevice::x11AppScreen());
+	Atom status = XInternAtom(display, "_HANGUL_INPUT_MODE", False);
+	Atom type = XInternAtom(display, "INTEGER", False);
+	XChangeProperty(display, window,
+			status, type, 32, PropModeReplace,
+			(const unsigned char *)&data, 1);
+
 	return true;
     }
 

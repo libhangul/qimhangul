@@ -39,6 +39,8 @@ CandidateList::CandidateList(wchar_t ch, int x, int y) :
 
 CandidateList::~CandidateList()
 {
+    if (m_listBox != NULL)
+	delete m_listBox;
 }
 
 QChar CandidateList::getCandidate()
@@ -200,7 +202,6 @@ CandidateList::nextPage()
 unsigned short int
 CandidateList::getCurrent()
 {
-    qDebug("current: %x\n", m_data[m_current].ch);
     return m_data[m_current].ch;
 }
 
