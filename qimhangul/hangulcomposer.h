@@ -53,7 +53,6 @@ public:
     ComposerBase(Keyboard keyboard);
     virtual ~ComposerBase();
 
-    virtual void preeditInsert(widestring &text) = 0;
     virtual void preeditUpdate(widestring &text) = 0;
     virtual void commit(widestring &text) = 0;
 

@@ -10,7 +10,6 @@ class HangulComposer : public hangul::ComposerBase {
 public:
     HangulComposer(hangul::ComposerBase::Keyboard keyboard, QInputContextHangul *context);
 
-    virtual void preeditInsert(hangul::widestring &text);
     virtual void preeditUpdate(hangul::widestring &text);
     virtual void commit(hangul::widestring &text);
 
@@ -41,7 +40,6 @@ private:
 	MODE_HANGUL
     } InputMode;
 
-    void preeditInsert(const QString &preeditString);
     void preeditUpdate(const QString &preeditString);
     void commit(const QString &preeditString);
 
