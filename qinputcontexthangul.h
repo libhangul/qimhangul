@@ -24,8 +24,8 @@ public:
     QInputContextHangul(hangul::ComposerBase::Keyboard keyboard);
     ~QInputContextHangul();
     
-    virtual QCString identifierName();
-    virtual QCString language();
+    virtual QString identifierName();
+    virtual QString language();
 
     virtual bool filterEvent( const QEvent *event);
 
