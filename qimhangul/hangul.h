@@ -94,6 +94,7 @@ struct _HangulInputContext {
     int combination_table_size;
     HangulBuffer buffer;
     int output_mode;
+    bool dvorak;
 
     wchar_t preedit_string[64];
     wchar_t commit_string[64];
@@ -101,11 +102,12 @@ struct _HangulInputContext {
 
 HangulInputContext* hangul_ic_new(HangulKeyboardType keyboard);
 void hangul_ic_delete(HangulInputContext *hic);
-bool hangul_ic_filter(HangulInputContext *hic, int ascii, bool capslock);
+bool hangul_ic_filter(HangulInputContext *hic, int ascii);
 void hangul_ic_reset(HangulInputContext *hic);
 bool hangul_ic_backspace(HangulInputContext *hic);
 
 void hangul_ic_set_output_mode(HangulInputContext *hic, int mode);
+void hangul_ic_set_dvorak(HangulInputContext *hic, bool dvorak);
 void hangul_ic_set_keyboard(HangulInputContext *hic,
 			    HangulKeyboardType keyboard);
 const wchar_t* hangul_ic_get_preedit_string(HangulInputContext *hic);
