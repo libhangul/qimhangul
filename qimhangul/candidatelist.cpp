@@ -8,7 +8,7 @@
 #include "candidatelist.h"
 #include "candidatetable.h"
 
-CandidateList::CandidateList(wchar_t ch, int x, int y) :
+CandidateList::CandidateList(int index, int x, int y) :
     m_selected(false),
     m_size(0),
     m_currentPage(0),
@@ -16,7 +16,6 @@ CandidateList::CandidateList(wchar_t ch, int x, int y) :
     m_data(0),
     m_listBox(NULL)
 {
-    int index = getTableIndex(ch);
     if (index >= 0) {
 	m_data = candidate_table[index] + 1;
 	for (m_size = 0; m_data[m_size].ch != 0; m_size++)
@@ -43,6 +42,29 @@ CandidateList::~CandidateList()
 	delete m_listBox;
 }
 
+int CandidateList::getTableIndex(wchar_t ch)
+{
+    int first, last, mid;
+
+    /* binary search */
+    first = 0;
+    last = sizeof(candidate_table) / sizeof(candidate_table[0]) - 1;
+    while (first <= last) {
+	mid = (first + last) / 2;
+
+	if (ch == candidate_table[mid][0].ch)
+	    return mid;
+
+	if (ch < candidate_table[mid][0].ch)
+	    last = mid - 1;
+	else
+	    first = mid + 1;
+    }
+
+    return -1;
+}
+
+
 QChar CandidateList::getCandidate()
 {
     return QChar(getCurrent());
@@ -54,24 +76,24 @@ bool CandidateList::filterEvent(const QKeyEvent *event)
     case Qt::Key_Up:
     case Qt::Key_K:
 	prev();
-	return true;
+	break;
     case Qt::Key_Down:
     case Qt::Key_J:
 	next();
-	return true;
+	break;
     case Qt::Key_Left:
     case Qt::Key_H:
     case Qt::Key_Prior:
     case Qt::Key_BackSpace:
 	prevPage();
-	return true;
+	break;
     case Qt::Key_Right:
     case Qt::Key_L:
     case Qt::Key_Space:
     case Qt::Key_Next:
     case Qt::Key_Tab:
 	nextPage();
-	return true;
+	break;
     case Qt::Key_Return:
 	close();
 	m_selected = true;
@@ -104,6 +126,12 @@ void CandidateList::close()
     m_listBox = NULL;
 }
 
+void CandidateList::move(int x, int y)
+{
+    if (m_listBox != NULL)
+	m_listBox->move(x, y);
+}
+
 void CandidateList::updateList()
 {
     m_listBox->clear();
@@ -123,28 +151,6 @@ void CandidateList::updateList()
 void CandidateList::updateCursor()
 {
     m_listBox->setSelected(m_current - m_currentPage, TRUE);
-}
-
-int CandidateList::getTableIndex(wchar_t ch)
-{
-    int first, last, mid;
-
-    /* binary search */
-    first = 0;
-    last = sizeof(candidate_table) / sizeof(candidate_table[0]) - 1;
-    while (first <= last) {
-	mid = (first + last) / 2;
-
-	if (ch == candidate_table[mid][0].ch)
-	    return mid;
-
-	if (ch < candidate_table[mid][0].ch)
-	    last = mid - 1;
-	else
-	    first = mid + 1;
-    }
-
-    return -1;
 }
 
 void

@@ -15,14 +15,16 @@ class QListBox;
 class QKeyEvent;
 class CandidateList {
 public:
-    CandidateList(wchar_t ch, int x, int y);
+    CandidateList(int index, int x, int y);
     virtual ~CandidateList();
 
+    static int getTableIndex(wchar_t ch);
+
     bool filterEvent(const QKeyEvent *event);
-    int size() { return m_size; }
-    bool isClosed() { return m_listBox == NULL; }
     bool isSelected() { return m_selected; }
     QChar getCandidate();
+
+    void move(int x, int y);
 
 private:
     void prev();
@@ -36,7 +38,6 @@ private:
     void close();
     void updateList();
     void updateCursor();
-    int getTableIndex(wchar_t ch);
 
     bool m_selected;
     int m_size;
