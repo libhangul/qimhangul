@@ -38,6 +38,7 @@ public:
 
 private:
     typedef enum {
+	MODE_NONE,
 	MODE_DIRECT,
 	MODE_HANGUL
     } InputMode;
@@ -45,10 +46,7 @@ private:
     void preeditUpdate(const QString &preeditString);
     void commit(const QString &preeditString);
     bool popupCandidateList();
-
-#if defined(Q_WS_X11)
     void setModeInfo(int mode);
-#endif
 
     CandidateList *m_candidateList;
     HangulComposer m_composer;
@@ -56,3 +54,8 @@ private:
     QRect m_rect;
 };
 
+#if !defined(Q_WS_X11)
+inline void QInputContextHangul::setModeInfo(int /*mode*/)
+{
+}
+#endif
