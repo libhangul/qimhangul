@@ -26,12 +26,6 @@ QString HangulComposer::getPreeditQString(hangul::widestring &text)
     return str;
 }
 
-void HangulComposer::preeditInsert(hangul::widestring &text)
-{
-    QString preeditString = getPreeditQString(text);
-    m_context->preeditInsert(preeditString);
-}
-
 void HangulComposer::preeditUpdate(hangul::widestring &text)
 {
     QString preeditString = getPreeditQString(text);
@@ -83,25 +77,12 @@ void QInputContextHangul::reset()
     qDebug("Hangul::reset");
 }
 
-void QInputContextHangul::preeditInsert(const QString &preeditString)
+void QInputContextHangul::preeditUpdate(const QString &preeditString)
 {
     if (!isComposing()) {
 	sendIMEvent(QEvent::IMStart);
     }
     sendIMEvent(QEvent::IMCompose, preeditString, preeditString.length());
-}
-
-void QInputContextHangul::preeditUpdate(const QString &preeditString)
-{
-    if (preeditString.length() == 0) {
-	if (isComposing())
-	    sendIMEvent(QEvent::IMEnd);
-    } else {
-	if (!isComposing()) {
-	    sendIMEvent(QEvent::IMStart);
-	}
-	sendIMEvent(QEvent::IMCompose, preeditString, preeditString.length());
-    }
 }
 
 void QInputContextHangul::commit(const QString &preeditString)

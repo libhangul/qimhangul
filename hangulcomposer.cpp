@@ -39,8 +39,10 @@ void ComposerBase::syllabicate()
 {
     widestring text = getPreeditString();
     m_buf.clear();
+    /* do not clear preedit string before commit
     widestring null;
     preeditUpdate(null);
+     */
     commit(text);
 }
 
@@ -49,17 +51,19 @@ bool ComposerBase::complete(wchar_t ch)
     widestring text = getPreeditString();
     m_buf.clear();
 
-    if (ch != 0)
-	text += ch;
-
+    /* do not clear preedit string before commit
     widestring null;
     preeditUpdate(null);
+    */
     commit(text);
 
-    if (ch != 0)
+    if (ch != 0) {
+	text = ch;
+	commit(text);
 	return true;
-    else
-	return false;
+    }
+
+    return false;
 }
 
 bool ComposerBase::backspace()
