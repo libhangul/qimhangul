@@ -16,7 +16,8 @@ void QInputContextHangul::setModeInfo(int mode)
     Window window = RootWindow(display, QPaintDevice::x11AppScreen());
     Atom status = XInternAtom(display, "_HANGUL_INPUT_MODE", False);
     Atom type = XInternAtom(display, "INTEGER", False);
-    XChangeProperty(display, window,
-		    status, type, 32, PropModeReplace,
-		    (const unsigned char *)&data, 1);
+    if (window != None && status != None && type != None) {
+	XChangeProperty(display, window, status, type,
+			32, PropModeReplace, (const unsigned char *)&data, 1);
+    }
 }
