@@ -1,3 +1,8 @@
+2005-01-20  Choe Hwanjin <choe.hwanjin@gmail.com>
+    * update HangulContext interface
+    * aware of Hangul, Hanja key
+    * ignore control, alt, meta keys
+
 2004-12-09  Choe Hwanjin <krisna@kldp.org>
     * reimplement with libhangul(http://kldp.net/projects/hangul/)
 

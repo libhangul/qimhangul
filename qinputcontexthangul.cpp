@@ -137,6 +137,18 @@ void QInputContextHangul::commit(const QString &str)
     sendIMEvent(QEvent::IMEnd, str);
 }
 
+bool QInputContextHangul::isTriggerKey(const QKeyEvent *event)
+{
+    return (event->key() == Qt::Key_Space && (event->state() & Qt::ShiftButton) == Qt::ShiftButton) ||
+	   (event->key() == Qt::Key_Hangul);
+}
+
+bool QInputContextHangul::isCandidateKey(const QKeyEvent *event)
+{
+    return (event->key() == Qt::Key_Hangul_Hanja) ||
+	   (event->key() == Qt::Key_F9);
+}
+
 bool QInputContextHangul::backspace()
 {
     bool ret = hangul_ic_backspace(m_hic);
@@ -193,8 +205,7 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
     if (keyevent->key() == Qt::Key_Backspace)
 	return backspace();
 
-    if (keyevent->key() == Qt::Key_Space &&
-	(keyevent->state() & Qt::ShiftButton) == Qt::ShiftButton) {
+    if (isTriggerKey(keyevent)) {
 	if (m_mode == MODE_DIRECT) {
 	    m_mode = MODE_HANGUL;
 	} else {
@@ -206,8 +217,15 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
 	return true;
     }
 
-    if (keyevent->key() == Qt::Key_F9) {
+    if (isCandidateKey(keyevent)) {
 	return popupCandidateList();
+    }
+
+    if (keyevent->state() & Qt::ControlButton ||
+	keyevent->state() & Qt::AltButton ||
+	keyevent->state() & Qt::MetaButton) {
+	reset();
+	return false;
     }
 
     if (m_mode == MODE_HANGUL) {
@@ -217,7 +235,7 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
 	else
 	    ascii = tolower(ascii);
 	
-	bool ret = hangul_ic_filter(m_hic, ascii, false);
+	bool ret = hangul_ic_filter(m_hic, ascii);
 
 	QString commitString = getCommitString();
 	if (!commitString.isEmpty())

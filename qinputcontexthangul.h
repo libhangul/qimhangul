@@ -48,6 +48,8 @@ private:
 	MODE_HANGUL
     } InputMode;
 
+    bool isTriggerKey(const QKeyEvent *event);
+    bool isCandidateKey(const QKeyEvent *event);
     QString getPreeditString();
     QString getCommitString();
     void updatePreedit(const QString &str);

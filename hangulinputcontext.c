@@ -194,10 +194,118 @@ hangul_buffer_backspace(HangulBuffer *buffer)
     return false;
 }
 
+int dvorak_to_qwerty(int ascii) {
+    static const int table[] = {
+	'!',	/* '!' */
+	'Q',	/* '"' */
+	'#',	/* '#' */
+	'$',	/* '$' */
+	'%',	/* '%' */
+	'&',	/* '&' */
+	'q',	/* ''' */
+	'(',	/* '(' */
+	')',	/* ')' */
+	'*',	/* '*' */
+	'}',	/* '+' */
+	'w',	/* ',' */
+	'\'',	/* '-' */
+	'e',	/* '.' */
+	'[',	/* '/' */
+	'0',	/* '0' */
+	'1',	/* '1' */
+	'2',	/* '2' */
+	'3',	/* '3' */
+	'4',	/* '4' */
+	'5',	/* '5' */
+	'6',	/* '6' */
+	'7',	/* '7' */
+	'8',	/* '8' */
+	'9',	/* '9' */
+	'Z',	/* ':' */
+	'z',	/* ';' */
+	'W',	/* '<' */
+	']',	/* '=' */
+	'E',	/* '>' */
+	'{',	/* '?' */
+	'@',	/* '@' */
+	'A',	/* 'A' */
+	'N',	/* 'B' */
+	'I',	/* 'C' */
+	'H',	/* 'D' */
+	'D',	/* 'E' */
+	'Y',	/* 'F' */
+	'U',	/* 'G' */
+	'J',	/* 'H' */
+	'G',	/* 'I' */
+	'C',	/* 'J' */
+	'V',	/* 'K' */
+	'P',	/* 'L' */
+	'M',	/* 'M' */
+	'L',	/* 'N' */
+	'S',	/* 'O' */
+	'R',	/* 'P' */
+	'X',	/* 'Q' */
+	'O',	/* 'R' */
+	':',	/* 'S' */
+	'K',	/* 'T' */
+	'F',	/* 'U' */
+	'>',	/* 'V' */
+	'<',	/* 'W' */
+	'B',	/* 'X' */
+	'T',	/* 'Y' */
+	'?',	/* 'Z' */
+	'-',	/* '[' */
+	'\\',	/* '\' */
+	'=',	/* ']' */
+	'^',	/* '^' */
+	'"',	/* '_' */
+	'`',	/* '`' */
+	'a',	/* 'a' */
+	'n',	/* 'b' */
+	'i',	/* 'c' */
+	'h',	/* 'd' */
+	'd',	/* 'e' */
+	'y',	/* 'f' */
+	'u',	/* 'g' */
+	'j',	/* 'h' */
+	'g',	/* 'i' */
+	'c',	/* 'j' */
+	'v',	/* 'k' */
+	'p',	/* 'l' */
+	'm',	/* 'm' */
+	'l',	/* 'n' */
+	's',	/* 'o' */
+	'r',	/* 'p' */
+	'x',	/* 'q' */
+	'o',	/* 'r' */
+	';',	/* 's' */
+	'k',	/* 't' */
+	'f',	/* 'u' */
+	'.',	/* 'v' */
+	',',	/* 'w' */
+	'b',	/* 'x' */
+	't',	/* 'y' */
+	'/',	/* 'z' */
+	'_',	/* '{' */
+	'|',	/* '|' */
+	'+',	/* '}' */
+	'~',	/* '~' */
+    };
+
+    if (ascii < '!' || ascii > '~')
+	return ascii;
+    return table[ascii - '!'];
+}
+
 static wchar_t
 hangul_ic_translate_jamo(HangulInputContext *hic, int ascii)
 {
-    wchar_t ch = ascii;
+    wchar_t ch;
+
+    if (hic->dvorak)
+	ch = dvorak_to_qwerty(ascii);
+    else
+	ch = ascii;
 
     if (ascii >= '!' && ascii <= '~') {
 	ch = hic->keyboard_table[ascii - '!'];
@@ -434,20 +542,12 @@ hangul_ic_filter_3(HangulInputContext *hic, wchar_t ch)
 }
 
 bool
-hangul_ic_filter(HangulInputContext *hic, int ascii, bool capslock)
+hangul_ic_filter(HangulInputContext *hic, int ascii)
 {
     wchar_t ch;
 
     if (hic == NULL)
 	return false;
-
-    if (capslock) {
-	if (isupper(ascii)) {
-	    ascii = tolower(ascii);
-	} else {
-	    ascii = toupper(ascii);
-	}
-    }
 
     ch = hangul_ic_translate_jamo(hic, ascii);
 
@@ -513,6 +613,15 @@ hangul_ic_set_output_mode(HangulInputContext *hic, int mode)
 }
 
 void
+hangul_ic_set_dvorak(HangulInputContext *hic, bool dvorak)
+{
+    if (hic == NULL)
+	return;
+
+    hic->dvorak = dvorak;
+}
+
+void
 hangul_ic_set_keyboard(HangulInputContext *hic, HangulKeyboardType keyboard)
 {
     if (hic == NULL)
@@ -575,6 +684,7 @@ hangul_ic_new(HangulKeyboardType keyboard)
 	return NULL;
 
     hangul_ic_set_output_mode(hic, HANGUL_OUTPUT_SYLLABLE);
+    hangul_ic_set_dvorak(hic, false);
     hangul_ic_set_keyboard(hic, keyboard);
 
     hangul_buffer_clear(&hic->buffer);
