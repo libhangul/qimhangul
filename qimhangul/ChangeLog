@@ -1,3 +1,6 @@
+2004-12-09  Choe Hwanjin <krisna@kldp.org>
+    * reimplement with libhangul(http://kldp.net/projects/hangul/)
+
 2004-10-06  Choe Hwanjin <krisna@kldp.org>
     * release 0.0.1 again :)
 

@@ -19,33 +19,20 @@
 #include <stack>
 #include <wchar.h>
 
-#include "hangulcomposer.h"
+#include "hangul.h"
 #include "candidatelist.h"
 
 #include <qinputcontext.h>
 
-class QInputContextHangul;
-class HangulComposer : public hangul::ComposerBase {
-public:
-    HangulComposer(hangul::ComposerBase::Keyboard keyboard, QInputContextHangul *context);
-
-    virtual void preeditUpdate(hangul::widestring &text);
-    virtual void commit(hangul::widestring &text);
-
-private:
-    QString getPreeditQString(hangul::widestring &text);
-    QInputContextHangul *m_context;
-};
-
 class QInputContextHangul : public QInputContext {
 public:
-    QInputContextHangul(hangul::ComposerBase::Keyboard keyboard);
+    QInputContextHangul(HangulKeyboardType keyboard);
     ~QInputContextHangul();
     
     virtual QString identifierName();
     virtual QString language();
 
-    virtual bool filterEvent( const QEvent *event);
+    virtual bool filterEvent( const QEvent *event );
 
     virtual void setFocus();
     virtual void unsetFocus();
@@ -61,13 +48,16 @@ private:
 	MODE_HANGUL
     } InputMode;
 
-    void preeditUpdate(const QString &preeditString);
-    void commit(const QString &preeditString);
+    QString getPreeditString();
+    QString getCommitString();
+    void updatePreedit(const QString &str);
+    void commit(const QString &str);
+    bool backspace();
     bool popupCandidateList();
     void setModeInfo(int mode);
 
     CandidateList *m_candidateList;
-    HangulComposer m_composer;
+    HangulInputContext *m_hic;
     InputMode m_mode;
     QRect m_rect;
 };
