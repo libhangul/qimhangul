@@ -5,7 +5,7 @@ TEMPLATE = lib
 target.path = $(QTDIR)/plugins/inputmethods
 INSTALLS += target
 
-CONFIG += debug plugin qt thread
+CONFIG += debug plugin qt
 
 # Input
 HEADERS += \
