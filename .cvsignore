@@ -1,0 +1,7 @@
+Makefile
+*.o
+libqimhangul.so
+.tmp
+qimhangul-*.tar.gz
+set.sh
+example.html
