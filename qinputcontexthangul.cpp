@@ -64,12 +64,7 @@ QString QInputContextHangul::language()
 
 void QInputContextHangul::setFocus()
 {
-    if (m_mode == MODE_DIRECT) {
-	setModeInfo(1);
-    } else {
-	setModeInfo(2);
-    }
-
+    setModeInfo(m_mode);
     qDebug("Hangul::setFocus");
 }
 
@@ -82,7 +77,7 @@ void QInputContextHangul::unsetFocus()
     }
     m_composer.reset();
 
-    setModeInfo(2);
+    setModeInfo(MODE_NONE);
 
     qDebug("Hangul::unsetFocus");
 }
@@ -151,16 +146,13 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
 
     if (keyevent->key() == Qt::Key_Space &&
 	(keyevent->state() & Qt::ShiftButton) == Qt::ShiftButton) {
-	int mode = 0;
 	if (m_mode == MODE_DIRECT) {
 	    m_mode = MODE_HANGUL;
-	    mode = 2;
 	} else {
 	    m_composer.reset();
 	    m_mode = MODE_DIRECT;
-	    mode = 1;
 	}
-	setModeInfo(mode);
+	setModeInfo(m_mode);
 
 	return true;
     }
