@@ -580,39 +580,3 @@ static const wchar_t keyboard_table_3yet[] = {
     0x007d,	/* braceright:	right brace			*/
     0x11f0,	/* asciitilde:	jongseong yesieung		*/
 };
-
-#if 0
-static NabiComposeItem nabi_compose_items_internal[] = {
-    { 0x11001100, 0x1101 },  /* choseong  kiyeok + kiyeok  = ssangkiyeok   */
-    { 0x11031103, 0x1104 },  /* choseong  tikeut + tikeut  = ssangtikeut   */
-    { 0x11071107, 0x1108 },  /* choseong  pieup  + pieup   = ssangpieup    */
-    { 0x11091109, 0x110a },  /* choseong  sios   + sios    = ssangsios     */
-    { 0x110c110c, 0x110d },  /* choseong  cieuc  + cieuc   = ssangcieuc    */
-    { 0x11691161, 0x116a },  /* jungseong o      + a       = wa 	   */
-    { 0x11691162, 0x116b },  /* jungseong o      + ae      = wae 	   */
-    { 0x11691175, 0x116c },  /* jungseong o      + i       = oe 	   */
-    { 0x116e1165, 0x116f },  /* jungseong u      + eo      = weo 	   */
-    { 0x116e1166, 0x1170 },  /* jungseong u      + e       = we 	   */
-    { 0x116e1175, 0x1171 },  /* jungseong u      + i       = wi 	   */
-    { 0x11731175, 0x1174 },  /* jungseong eu     + i       = yi 	   */
-    { 0x11a811a8, 0x11a9 },  /* jongseong kiyeok + kiyeok  = ssangekiyeok  */
-    { 0x11a811ba, 0x11aa },  /* jongseong kiyeok + sios    = kiyeok-sois   */
-    { 0x11ab11bd, 0x11ac },  /* jongseong nieun  + cieuc   = nieun-cieuc   */
-    { 0x11ab11c2, 0x11ad },  /* jongseong nieun  + hieuh   = nieun-hieuh   */
-    { 0x11af11a8, 0x11b0 },  /* jongseong rieul  + kiyeok  = rieul-kiyeok  */
-    { 0x11af11b7, 0x11b1 },  /* jongseong rieul  + mieum   = rieul-mieum   */
-    { 0x11af11b8, 0x11b2 },  /* jongseong rieul  + pieup   = rieul-pieup   */
-    { 0x11af11ba, 0x11b3 },  /* jongseong rieul  + sios    = rieul-sios    */
-    { 0x11af11c0, 0x11b4 },  /* jongseong rieul  + thieuth = rieul-thieuth */
-    { 0x11af11c1, 0x11b5 },  /* jongseong rieul  + phieuph = rieul-phieuph */
-    { 0x11af11c2, 0x11b6 },  /* jongseong rieul  + hieuh   = rieul-hieuh   */
-    { 0x11b811ba, 0x11b9 },  /* jongseong pieup  + sios    = pieup-sios    */
-    { 0x11ba11ba, 0x11bb }   /* jongseong sios   + sios    = ssangsios     */
-};
-
-static NabiComposeTable nabi_compose_table_internal = {
-    "internal",
-    nabi_compose_items_internal,
-    sizeof(nabi_compose_items_internal)/sizeof(nabi_compose_items_internal[0])
-};
-#endif

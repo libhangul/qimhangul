@@ -3,6 +3,7 @@
 TEMPLATE = lib
 TARGET = qimhangul
 VERSION = 0.0.1
+DISTFILES += ChangeLog
 
 target.path = $(QTDIR)/plugins/inputmethods
 INSTALLS += target
