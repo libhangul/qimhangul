@@ -2,7 +2,7 @@
 
 TEMPLATE = lib
 TARGET = qimhangul
-VERSION = 0.0.1
+VERSION = 0.0.2
 DISTFILES += ChangeLog
 
 target.path = $(QTDIR)/plugins/inputmethods
@@ -12,6 +12,8 @@ CONFIG += debug plugin qt
 
 # Input
 HEADERS += \
+    keyboard.h \
+    candidatetable.h \
     qinputcontexthangul.h \
     qinputcontextpluginhangul.h \
     hangul.h \
