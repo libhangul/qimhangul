@@ -87,16 +87,10 @@ void QInputContextHangul::preeditUpdate(const QString &preeditString)
 
 void QInputContextHangul::commit(const QString &preeditString)
 {
-    if (preeditString.length() == 0) {
-	if (isComposing()) {
-	    sendIMEvent(QEvent::IMEnd, QString::null);
-	}
-    } else {
-	if (!isComposing()) {
-	    sendIMEvent(QEvent::IMStart);
-	}
-	sendIMEvent(QEvent::IMEnd, preeditString);
+    if (!isComposing()) {
+	sendIMEvent(QEvent::IMStart);
     }
+    sendIMEvent(QEvent::IMEnd, preeditString);
 }
 
 bool QInputContextHangul::filterEvent(const QEvent *event)
