@@ -43,7 +43,8 @@ void ComposerBase::syllabicate()
     widestring null;
     preeditUpdate(null);
      */
-    commit(text);
+    if (text.size() > 0)
+	commit(text);
 }
 
 bool ComposerBase::complete(wchar_t ch)
@@ -55,7 +56,8 @@ bool ComposerBase::complete(wchar_t ch)
     widestring null;
     preeditUpdate(null);
     */
-    commit(text);
+    if (text.size() > 0)
+	commit(text);
 
     if (ch != 0) {
 	text = ch;
@@ -91,8 +93,6 @@ wchar_t ComposerBase::translateToJamo(int ascii)
 
     if (ascii >= '!'  && ascii <= '~') {
 	ch = m_keyboard[ascii - '!'];
-    } else if (ascii == ' ') {
-	ch = ascii;
     }
 
     return ch;
