@@ -2,13 +2,13 @@
 
 TEMPLATE = lib
 TARGET = qimhangul
-VERSION = 0.0.2
-DISTFILES += ChangeLog
+VERSION = 0.0.1
+DISTFILES += ChangeLog COPYING AUTHORS
 
 target.path = $(QTDIR)/plugins/inputmethods
 INSTALLS += target
 
-CONFIG += debug plugin qt
+CONFIG += debug plugin qt thread
 
 # Input
 HEADERS += \
