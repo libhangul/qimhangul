@@ -39,8 +39,10 @@ void HangulComposer::commit(hangul::widestring &text)
 }
 
 QInputContextHangul::QInputContextHangul(hangul::ComposerBase::Keyboard keyboard) :
+    m_candidateList(NULL),
     m_composer(keyboard, this),
-    m_mode(MODE_DIRECT)
+    m_mode(MODE_DIRECT),
+    m_rect(0, 0, 0, 0)
 {
     qDebug("Hangul::");
 }
@@ -67,8 +69,14 @@ void QInputContextHangul::setFocus()
 
 void QInputContextHangul::unsetFocus()
 {
-    m_composer.reset();
+    if (m_candidateList == NULL)
+	m_composer.reset();
     qDebug("Hangul::unsetFocus");
+}
+
+void QInputContextHangul::setMicroFocus(int x, int y, int w, int h, QFont* /*f*/)
+{
+    m_rect.setRect(x, y, w, h);
 }
 
 void QInputContextHangul::reset()
@@ -93,12 +101,34 @@ void QInputContextHangul::commit(const QString &preeditString)
     sendIMEvent(QEvent::IMEnd, preeditString);
 }
 
+bool QInputContextHangul::popupCandidateList()
+{
+    hangul::widestring text = m_composer.getPreeditString();
+    m_candidateList = new CandidateList(text[0], m_rect.left(), m_rect.bottom());
+
+    return true;
+}
+
 bool QInputContextHangul::filterEvent(const QEvent *event)
 {
     if (event->type() == QEvent::KeyRelease)
 	return false;
 
     const QKeyEvent *keyevent = static_cast<const QKeyEvent*>(event);
+    if (m_candidateList != NULL) {
+	bool ret = m_candidateList->filterEvent(keyevent);
+	if (m_candidateList->isClosed()) {
+	    if (m_candidateList->isSelected()) {
+		m_composer.clear();
+		QString candidate(m_candidateList->getCandidate());
+		commit(candidate);
+	    }
+	    delete m_candidateList;
+	    m_candidateList = NULL;
+	}
+	return ret;
+    }
+
     if (keyevent->key() == Qt::Key_Shift)
 	return false;
 
@@ -114,6 +144,10 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
 	    m_mode = MODE_DIRECT;
 	}
 	return true;
+    }
+
+    if (keyevent->key() == Qt::Key_F9) {
+	return popupCandidateList();
     }
 
     if (m_mode == MODE_HANGUL) {

@@ -59,11 +59,13 @@ bool ComposerBase::complete(wchar_t ch)
     if (text.size() > 0)
 	commit(text);
 
+    /*
     if (ch != 0) {
 	text = ch;
 	commit(text);
 	return true;
     }
+    */
 
     return false;
 }

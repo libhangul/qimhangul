@@ -58,6 +58,7 @@ public:
 
     virtual bool filter(int ascii);
     void reset();
+    void clear();
     bool backspace();
     widestring getPreeditString();
 
@@ -200,9 +201,14 @@ inline bool Buffer::backspace()
     return false;
 }
 
+inline void ComposerBase::clear()
+{
+    m_buf.clear();
+}
+
 inline widestring ComposerBase::getPreeditString()
 {
     return m_buf.getPreeditString();
 }
 
-}
+} // namespace hangul

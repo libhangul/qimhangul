@@ -12,10 +12,12 @@ HEADERS += \
     qinputcontexthangul.h \
     qinputcontextpluginhangul.h \
     hangul.h \
-    hangulcomposer.h
+    hangulcomposer.h \
+    candidatelist.h
 
 SOURCES += \
     qinputcontexthangul.cpp \
     qinputcontextpluginhangul.cpp \
     hangul.c \
-    hangulcomposer.cpp
+    hangulcomposer.cpp \
+    candidatelist.cpp
