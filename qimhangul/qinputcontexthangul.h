@@ -46,6 +46,10 @@ private:
     void commit(const QString &preeditString);
     bool popupCandidateList();
 
+#if defined(Q_WS_X11)
+    void setModeInfo(int mode);
+#endif
+
     CandidateList *m_candidateList;
     HangulComposer m_composer;
     InputMode m_mode;
