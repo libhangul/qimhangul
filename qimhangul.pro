@@ -2,7 +2,7 @@
 
 TEMPLATE = lib
 TARGET = qimhangul
-VERSION = 0.0.1
+VERSION = 0.0.2
 DISTFILES += ChangeLog COPYING AUTHORS
 
 target.path = $(QTDIR)/plugins/inputmethods
