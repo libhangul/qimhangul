@@ -93,20 +93,20 @@ hangul_buffer_get_jamo_string(HangulBuffer *buffer, wchar_t *buf, int buflen)
 {
     int n = 0;
 
-    if (buffer->choseong) {
-	buf[n++] = buffer->choseong;
-    } else {
-	buf[n++] = HANGUL_CHOSEONG_FILLER;
-    }
-
-    if (buffer->jungseong) {
-	buf[n++] = buffer->jungseong;
-    } else {
-	buf[n++] = HANGUL_JUNGSEONG_FILLER;
-    }
-
-    if (buffer->jongseong) {
-	buf[n++] = buffer->jongseong;
+    if (buffer->choseong || buffer->jungseong || buffer->jongseong) {
+	if (buffer->choseong) {
+	    buf[n++] = buffer->choseong;
+	} else {
+	    buf[n++] = HANGUL_CHOSEONG_FILLER;
+	}
+	if (buffer->jungseong) {
+	    buf[n++] = buffer->jungseong;
+	} else {
+	    buf[n++] = HANGUL_JUNGSEONG_FILLER;
+	}
+	if (buffer->jongseong) {
+	    buf[n++] = buffer->jongseong;
+	}
     }
 
     buf[n] = L'\0';
@@ -300,12 +300,10 @@ int dvorak_to_qwerty(int ascii) {
 static wchar_t
 hangul_ic_translate_jamo(HangulInputContext *hic, int ascii)
 {
-    wchar_t ch;
+    wchar_t ch = 0;
 
     if (hic->dvorak)
-	ch = dvorak_to_qwerty(ascii);
-    else
-	ch = ascii;
+	ascii = dvorak_to_qwerty(ascii);
 
     if (ascii >= '!' && ascii <= '~') {
 	ch = hic->keyboard_table[ascii - '!'];
@@ -494,6 +492,9 @@ hangul_ic_filter_2(HangulInputContext *hic, wchar_t ch)
 
 none_hangul:
     hangul_ic_save_commit_string(hic);
+    if (ch > 0)
+	hangul_ic_append_commit_string(hic, ch);
+    hangul_ic_save_preedit_string(hic);
     return false;
 }
 
