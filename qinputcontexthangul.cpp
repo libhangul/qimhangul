@@ -22,10 +22,12 @@
 #include <qstring.h>
 #include <qevent.h>
 
-#include "hangul.h"
+#include <hangul.h>
 #include "qinputcontexthangul.h"
 
-static inline QString wcsToQString(const wchar_t *wcs)
+HanjaTable* QInputContextHangul::hanjaTable = NULL;
+
+static inline QString wcsToQString(const ucschar *wcs)
 {
     QString str;
 
@@ -93,7 +95,7 @@ void QInputContextHangul::setMicroFocus(int x, int y, int w, int h, QFont* /*f*/
 
 void QInputContextHangul::reset()
 {
-    hangul_ic_reset(m_hic);
+    hangul_ic_flush(m_hic);
 
     // we do not send preedit update IMEvent
     // because commit() send IMEnd event and it remove preedit string
@@ -167,14 +169,15 @@ bool QInputContextHangul::backspace()
 
 bool QInputContextHangul::popupCandidateList()
 {
-    const wchar_t *text = hangul_ic_get_preedit_string(m_hic);
+    const ucschar *text = hangul_ic_get_preedit_string(m_hic);
     if (text != NULL && *text != L'\0') {
-	int index = CandidateList::getTableIndex(text[0]);
-	if (index >= 0) {
-	    m_candidateList = new CandidateList(index,
-						m_rect.left(), m_rect.bottom());
-	    return false;
-	}
+	QString str;
+	str += QChar(text[0]);
+	HanjaList *list = hanja_table_match(hanjaTable, HANJA_MATCH_PREFIX,
+					    str.utf8());
+	qDebug("QInputContextHangul::popupCandidateList: %d\n", list->nitems);
+	m_candidateList = new CandidateList(list,
+					    m_rect.left(), m_rect.bottom());
     }
 
     return false;

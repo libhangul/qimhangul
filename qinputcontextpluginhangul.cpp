@@ -22,11 +22,18 @@
 QInputContextPluginHangul::QInputContextPluginHangul()
 {
     qDebug("QInputContextPluginHangul::");
+
+    if (QInputContextHangul::hanjaTable)
+	hanja_table_destroy(QInputContextHangul::hanjaTable);
+    QInputContextHangul::hanjaTable = hanja_table_load(NULL);
 }
 
 QInputContextPluginHangul::~QInputContextPluginHangul()
 {
     qDebug("QInputContextPluginHangul::~");
+
+    if (QInputContextHangul::hanjaTable)
+	hanja_table_destroy(QInputContextHangul::hanjaTable);
 }
 
 QStringList QInputContextPluginHangul::keys() const

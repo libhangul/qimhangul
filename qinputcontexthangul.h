@@ -19,7 +19,7 @@
 #include <stack>
 #include <wchar.h>
 
-#include "hangul.h"
+#include <hangul.h>
 #include "candidatelist.h"
 
 #include <qinputcontext.h>
@@ -38,6 +38,8 @@ public:
     virtual void unsetFocus();
     virtual void setMicroFocus( int x, int y, int w, int h, QFont *f = 0 );
     virtual void reset();
+
+    static HanjaTable* hanjaTable;
 
     friend class HangulComposer;
 

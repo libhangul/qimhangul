@@ -14,17 +14,16 @@ CONFIG += debug plugin qt thread
 HEADERS += \
     qinputcontexthangul.h \
     qinputcontextpluginhangul.h \
-    hangul.h \
-    hangulkeyboard.h \
     candidatetable.h \
     candidatelist.h
 
 SOURCES += \
     qinputcontexthangul.cpp \
     qinputcontextpluginhangul.cpp \
-    hangulctype.c \
-    hangulinputcontext.c \
     candidatelist.cpp
+
+INCLUDEPATH += $$system(pkg-config libhangul --cflags-only-I | sed -e 's/-I//')
+LIBS += $$system(pkg-config libhangul --libs)
 
 unix {
     SOURCES += qinputcontexthangul_x11.cpp

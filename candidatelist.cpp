@@ -21,28 +21,35 @@
 #include <qdialog.h>
 #include <qlistbox.h>
 #include <qlayout.h>
+#include <qfont.h>
 #include <qnamespace.h>
 
-#include "candidatelist.h"
-#include "candidatetable.h"
+#include <hangul.h>
 
-CandidateList::CandidateList(int index, int x, int y) :
+#include "candidatelist.h"
+
+CandidateList::CandidateList(const HanjaList *list, int x, int y) :
+    m_list(list),
     m_selected(false),
     m_size(0),
     m_currentPage(0),
     m_current(0),
-    m_data(0),
     m_listBox(NULL)
 {
-    if (index >= 0) {
-	m_data = candidate_table[index] + 1;
-	for (m_size = 0; m_data[m_size].ch != 0; m_size++)
-	    continue;
+    if (m_list) {
+	m_size = m_list->nitems;
 	m_itemsPerPage = 9;
 
 	m_listBox = new QListBox(0, "CandidateList",
 				Qt::WType_Dialog | Qt::WStyle_Customize |
-				Qt::WStyle_NoBorder | Qt::WX11BypassWM),
+				Qt::WStyle_NoBorder | Qt::WX11BypassWM);
+
+	QFont font(m_listBox->font());
+	if (font.pointSize() < 0)
+	    font.setPixelSize(font.pixelSize() * 15 / 10);
+	else
+	    font.setPointSize(font.pointSize() * 15 / 10);
+	m_listBox->setFont(font);
 	m_listBox->setFrameStyle( QFrame::Plain | QFrame::Box );
 	m_listBox->setLineWidth(1);
 	m_listBox->move(x, y);
@@ -60,32 +67,9 @@ CandidateList::~CandidateList()
 	delete m_listBox;
 }
 
-int CandidateList::getTableIndex(wchar_t ch)
+QString CandidateList::getCandidate()
 {
-    int first, last, mid;
-
-    /* binary search */
-    first = 0;
-    last = sizeof(candidate_table) / sizeof(candidate_table[0]) - 1;
-    while (first <= last) {
-	mid = (first + last) / 2;
-
-	if (ch == candidate_table[mid][0].ch)
-	    return mid;
-
-	if (ch < candidate_table[mid][0].ch)
-	    last = mid - 1;
-	else
-	    first = mid + 1;
-    }
-
-    return -1;
-}
-
-
-QChar CandidateList::getCandidate()
-{
-    return QChar(getCurrent());
+    return QString::fromUtf8(getCurrent());
 }
 
 bool CandidateList::filterEvent(const QKeyEvent *event)
@@ -154,14 +138,14 @@ void CandidateList::updateList()
 {
     m_listBox->clear();
     for (int i = m_currentPage;
-	 i < m_currentPage + m_itemsPerPage && m_data[i].ch != 0;
+	 i < m_currentPage + m_itemsPerPage && i < m_size;
 	 i++) {
 	QString text;
 	text += QString::number(i - m_currentPage + 1);
 	text += " ";
-	text += QChar(m_data[i].ch);
+	text += QString::fromUtf8(m_list->items[i]->value);
 	text += " ";
-	text += QString::fromUtf8(m_data[i].comment);
+	text += QString::fromUtf8(m_list->items[i]->comment);
 	m_listBox->insertItem(text);
     }
 }
@@ -223,10 +207,10 @@ CandidateList::nextPage()
     updateCursor();
 }
 
-unsigned short int
+const char*
 CandidateList::getCurrent()
 {
-    return m_data[m_current].ch;
+    return m_list->items[m_current]->value;
 }
 
 void
@@ -237,13 +221,12 @@ CandidateList::setCurrent(int index)
     }
 }
 
-unsigned short int
-CandidateList::getNth(int n)
+const char*
+CandidateList::getNth(int index)
 {
-    n += m_currentPage;
-    if (n < 0 && n >= m_size)
-	return 0;
+    index += m_currentPage;
+    if (index < 0 && index >= m_size)
+	return NULL;
 
-    m_current = n;
-    return m_data[n].ch;
+    return m_list->items[index]->value;
 }
