@@ -19,7 +19,8 @@
 #include <qapplication.h>
 #include <qeventloop.h>
 #include <qdialog.h>
-#include <qlistbox.h>
+#include <qframe.h>
+#include <qlabel.h>
 #include <qlayout.h>
 #include <qfont.h>
 #include <qnamespace.h>
@@ -34,37 +35,60 @@ CandidateList::CandidateList(const HanjaList *list, int x, int y) :
     m_size(0),
     m_currentPage(0),
     m_current(0),
-    m_listBox(NULL)
+    m_frame(NULL)
 {
     if (m_list) {
 	m_size = m_list->nitems;
 	m_itemsPerPage = 9;
-
-	m_listBox = new QListBox(0, "CandidateList",
-				Qt::WType_Dialog | Qt::WStyle_Customize |
-				Qt::WStyle_NoBorder | Qt::WX11BypassWM);
-
-	QFont font(m_listBox->font());
+	
+	m_frame = new QFrame(0, "CandidateList",
+			    Qt::WType_Dialog | Qt::WStyle_Customize |
+			    Qt::WStyle_NoBorder | Qt::WX11BypassWM);
+	m_frame->setFrameStyle(QFrame::Panel | QFrame::Raised);
+	m_frame->setLineWidth(1);
+	QFont font(m_frame->font());
 	if (font.pointSize() < 0)
 	    font.setPixelSize(font.pixelSize() * 15 / 10);
 	else
 	    font.setPointSize(font.pointSize() * 15 / 10);
-	m_listBox->setFont(font);
-	m_listBox->setFrameStyle( QFrame::Plain | QFrame::Box );
-	m_listBox->setLineWidth(1);
-	m_listBox->move(x, y);
+	m_frame->setFont(font);
+	m_frame->move(x, y);
+
+	QBoxLayout *vlayout = new QVBoxLayout(m_frame, 5, 3);
+    
+	m_key = new QLabel(m_frame);
+	QLabel *colon = new QLabel(":", m_frame);
+	m_comment = new QLabel(m_frame);
+	QBoxLayout *hlayout = new QHBoxLayout(vlayout, 3);
+	hlayout->addWidget(m_key);
+	hlayout->addWidget(colon);
+	hlayout->addWidget(m_comment);
+	hlayout->addStretch(0);
+
+	QFrame *line = new QFrame(m_frame);
+	line->setFrameStyle(QFrame::HLine | QFrame::Plain);
+	line->setLineWidth(1);
+	vlayout->addWidget(line);
+
+	hlayout = new QHBoxLayout(vlayout, 10);
+	m_labelList.resize(m_itemsPerPage);
+	for (int i = 0; i < m_itemsPerPage; i++) {
+	    QLabel *item = new QLabel(m_frame);
+	    hlayout->addWidget(item);
+	    m_labelList.insert(i, item);
+	}
+
+	m_frame->show();
 
 	updateList();
 	updateCursor();
-
-	m_listBox->show();
     }
 }
 
 CandidateList::~CandidateList()
 {
-    if (m_listBox != NULL)
-	delete m_listBox;
+    if (m_frame != NULL)
+	delete m_frame;
 }
 
 QString CandidateList::getCandidate()
@@ -77,24 +101,24 @@ bool CandidateList::filterEvent(const QKeyEvent *event)
     switch (event->key()) {
     case Qt::Key_Up:
     case Qt::Key_K:
-	prev();
+	prevPage();
 	break;
     case Qt::Key_Down:
     case Qt::Key_J:
-	next();
+	nextPage();
 	break;
     case Qt::Key_Left:
     case Qt::Key_H:
     case Qt::Key_Prior:
     case Qt::Key_BackSpace:
-	prevPage();
+	prev();
 	break;
     case Qt::Key_Right:
     case Qt::Key_L:
     case Qt::Key_Space:
     case Qt::Key_Next:
     case Qt::Key_Tab:
-	nextPage();
+	next();
 	break;
     case Qt::Key_Return:
 	close();
@@ -124,35 +148,35 @@ bool CandidateList::filterEvent(const QKeyEvent *event)
 
 void CandidateList::close()
 {
-    delete m_listBox;
-    m_listBox = NULL;
+    delete m_frame;
+    m_frame = NULL;
 }
 
 void CandidateList::move(int x, int y)
 {
-    if (m_listBox != NULL)
-	m_listBox->move(x, y);
+    if (m_frame != NULL)
+	m_frame->move(x, y);
 }
 
 void CandidateList::updateList()
 {
-    m_listBox->clear();
-    for (int i = m_currentPage;
-	 i < m_currentPage + m_itemsPerPage && i < m_size;
-	 i++) {
-	QString text;
-	text += QString::number(i - m_currentPage + 1);
-	text += " ";
-	text += QString::fromUtf8(m_list->items[i]->value);
-	text += " ";
-	text += QString::fromUtf8(m_list->items[i]->comment);
-	m_listBox->insertItem(text);
+    for (int i = 0; i < m_itemsPerPage; i++) {
+	if (i + m_currentPage < m_size) {
+	    QString text;
+	    text += QString::number(i + 1);
+	    text += ".";
+	    text += QString::fromUtf8(m_list->items[i + m_currentPage]->value);
+	    m_labelList[i]->setText(text);
+	} else {
+	    m_labelList[i]->setText("");
+	}
     }
 }
 
 void CandidateList::updateCursor()
 {
-    m_listBox->setSelected(m_current - m_currentPage, TRUE);
+    m_key->setText(QString::fromUtf8(m_list->items[m_current]->value));
+    m_comment->setText(QString::fromUtf8(m_list->items[m_current]->comment));
 }
 
 void

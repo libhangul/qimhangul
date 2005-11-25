@@ -19,18 +19,12 @@
 #ifndef _CANDIDATE_H_
 #define _CANDIDATE_H_
 
-#include <wchar.h>
 #include <qstring.h>
+#include <qptrvector.h>
 #include <hangul.h>
 
-typedef struct _CandidateItem CandidateItem;
-
-struct _CandidateItem {
-    unsigned short int ch;
-    const char *comment;
-};
-
-class QListBox;
+class QLabel;
+class QFrame;
 class QKeyEvent;
 class CandidateList {
 public:
@@ -62,7 +56,10 @@ private:
     int m_itemsPerPage;
     int m_currentPage;
     int m_current;
-    QListBox *m_listBox;
+    QFrame *m_frame;
+    QLabel *m_key;
+    QLabel *m_comment;
+    QPtrVector<QLabel> m_labelList;
 };
 
 #endif /* _CANDIDATE_H_ */
