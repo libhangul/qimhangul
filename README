@@ -1,0 +1,34 @@
+qimhangul에 대해서
+qimhangul은 Qt-immodule 패치된 Qt를 위한 한글 입력 모듈입니다.
+Qt-immodule에 대해서는 아래 링크를 참고하세요:
+http://www.freedesktop.org/Software/immodule-qt
+
+빌드와 설치 방법
+ $ qmake -makefile
+ $ make
+ # make install
+
+설정 방법
+환경 변수 QT_IM_MODULE=hangul2 을 설정하시면 기본 입력기로 사용하게 됩니다.
+자판에 따른 환경 변수 값은 아래와 같습니다.
+두벌식	    hangul2
+세벌식최종  hangul3f
+세벌식390   hangul390
+
+사용 방법
+한영 전환키는 Shift+Space, Hangul키 입니다.
+한자 변환키는 F9, Hangul_Hanja 키 입니다.
+
+
+What is qimhangul?
+Qimhangul is a korean input method module for Qt that qt-immodule patch is
+applied to. About qt-module patch, see this link,
+http://www.freedesktop.org/Software/immodule-qt
+
+How to build and install
+ $ qmake -makefile
+ $ make
+ $ make install
+
+For further information
+ see http://kde.kldp.org/wiki/wiki.php/qimhangul
