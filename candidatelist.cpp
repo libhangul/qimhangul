@@ -170,6 +170,7 @@ void CandidateList::updateList()
 	} else {
 	    m_labelList[i]->setText("");
 	}
+	m_labelList[i]->setBackgroundMode(Qt::PaletteBackground);
     }
 }
 
@@ -177,6 +178,10 @@ void CandidateList::updateCursor()
 {
     m_key->setText(QString::fromUtf8(m_list->items[m_current]->value));
     m_comment->setText(QString::fromUtf8(m_list->items[m_current]->comment));
+    for (int i = 0; i < m_itemsPerPage; i++) {
+	m_labelList[i]->setBackgroundMode(Qt::PaletteBackground);
+    }
+    m_labelList[m_current - m_currentPage]->setBackgroundMode(Qt::PaletteHighlight);
 }
 
 void
