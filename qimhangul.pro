@@ -14,7 +14,6 @@ CONFIG += debug plugin qt thread
 HEADERS += \
     qinputcontexthangul.h \
     qinputcontextpluginhangul.h \
-    candidatetable.h \
     candidatelist.h
 
 SOURCES += \
