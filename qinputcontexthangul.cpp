@@ -21,13 +21,26 @@
 #include <qapplication.h>
 #include <qstring.h>
 #include <qevent.h>
+#include <qtextcodec.h>
 
 #include <hangul.h>
 #include "qinputcontexthangul.h"
 
 HanjaTable* QInputContextHangul::hanjaTable = NULL;
 
-static inline QString wcsToQString(const ucschar *wcs)
+static inline QString ucsToQString(const ucschar *wcs);
+
+static bool
+filter(ucschar *str,
+       ucschar cho, ucschar jung, ucschar jong, void* /*data*/)
+{
+    QTextCodec *codec = QTextCodec::codecForLocale();
+    QString s = ucsToQString(str);
+    //qDebug("%x %x %x = %x %x", cho, jung, jong, str[0], str[1]);
+    return codec->canEncode(s);
+}
+
+static inline QString ucsToQString(const ucschar *wcs)
 {
     QString str;
 
@@ -44,6 +57,7 @@ QInputContextHangul::QInputContextHangul(HangulKeyboardType keyboard) :
     m_rect(0, 0, 0, 0)
 {
     m_hic = hangul_ic_new(keyboard);
+    hangul_ic_set_filter(m_hic, filter, NULL);
 
     qDebug("Hangul::");
 }
@@ -115,12 +129,12 @@ void QInputContextHangul::reset()
 
 QString QInputContextHangul::getPreeditString()
 {
-    return wcsToQString(hangul_ic_get_preedit_string(m_hic));
+    return ucsToQString(hangul_ic_get_preedit_string(m_hic));
 }
 
 QString QInputContextHangul::getCommitString()
 {
-    return wcsToQString(hangul_ic_get_commit_string(m_hic));
+    return ucsToQString(hangul_ic_get_commit_string(m_hic));
 }
 
 void QInputContextHangul::updatePreedit(const QString &str)
@@ -238,7 +252,7 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
 	else
 	    ascii = tolower(ascii);
 	
-	bool ret = hangul_ic_filter(m_hic, ascii);
+	bool ret = hangul_ic_process(m_hic, ascii);
 
 	QString commitString = getCommitString();
 	if (!commitString.isEmpty())
