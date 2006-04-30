@@ -25,6 +25,8 @@
 
 class QLabel;
 class QFrame;
+class QListView;
+class QStatusBar;
 class QKeyEvent;
 class CandidateList {
 public:
@@ -59,7 +61,8 @@ private:
     QFrame *m_frame;
     QLabel *m_key;
     QLabel *m_comment;
-    QPtrVector<QLabel> m_labelList;
+    QListView *m_listview;
+    QStatusBar *m_statusbar;
 };
 
 #endif /* _CANDIDATE_H_ */

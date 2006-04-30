@@ -21,6 +21,9 @@
 #include <qdialog.h>
 #include <qframe.h>
 #include <qlabel.h>
+#include <qlistview.h>
+#include <qheader.h>
+#include <qstatusbar.h>
 #include <qlayout.h>
 #include <qfont.h>
 #include <qnamespace.h>
@@ -46,13 +49,6 @@ CandidateList::CandidateList(const HanjaList *list, int x, int y) :
 			    Qt::WStyle_NoBorder | Qt::WX11BypassWM);
 	m_frame->setFrameStyle(QFrame::Panel | QFrame::Raised);
 	m_frame->setLineWidth(1);
-	QFont font(m_frame->font());
-	if (font.pointSize() < 0)
-	    font.setPixelSize(font.pixelSize() * 15 / 10);
-	else
-	    font.setPointSize(font.pointSize() * 15 / 10);
-	m_frame->setFont(font);
-	m_frame->move(x, y);
 
 	QBoxLayout *vlayout = new QVBoxLayout(m_frame, 5, 3);
     
@@ -65,23 +61,33 @@ CandidateList::CandidateList(const HanjaList *list, int x, int y) :
 	hlayout->addWidget(m_comment);
 	hlayout->addStretch(0);
 
-	QFrame *line = new QFrame(m_frame);
-	line->setFrameStyle(QFrame::HLine | QFrame::Plain);
-	line->setLineWidth(1);
-	vlayout->addWidget(line);
+	m_listview = new QListView(m_frame);
+	m_listview->addColumn("no");
+	m_listview->addColumn("char");
+	m_listview->addColumn("comment");
+	m_listview->setAllColumnsShowFocus(true);
+	m_listview->header()->hide();
+	vlayout->addWidget(m_listview);
 
-	hlayout = new QHBoxLayout(vlayout, 10);
-	m_labelList.resize(m_itemsPerPage);
+	QFont font(m_listview->font());
+	if (font.pointSize() < 0)
+	    font.setPixelSize(font.pixelSize() * 15 / 10);
+	else
+	    font.setPointSize(font.pointSize() * 15 / 10);
+	m_listview->setFont(font);
+
 	for (int i = 0; i < m_itemsPerPage; i++) {
-	    QLabel *item = new QLabel(m_frame);
-	    hlayout->addWidget(item);
-	    m_labelList.insert(i, item);
+	    (void)new QListViewItem(m_listview, "", "", "");
 	}
 
-	m_frame->show();
+	m_statusbar = new QStatusBar(m_frame);
+	vlayout->addWidget(m_statusbar);
 
 	updateList();
 	updateCursor();
+
+	m_frame->move(x, y);
+	m_frame->show();
     }
 }
 
@@ -101,24 +107,24 @@ bool CandidateList::filterEvent(const QKeyEvent *event)
     switch (event->key()) {
     case Qt::Key_Up:
     case Qt::Key_K:
-	prevPage();
+    case Qt::Key_BackSpace:
+	prev();
 	break;
     case Qt::Key_Down:
     case Qt::Key_J:
-	nextPage();
+    case Qt::Key_Space:
+	next();
 	break;
     case Qt::Key_Left:
     case Qt::Key_H:
     case Qt::Key_Prior:
-    case Qt::Key_BackSpace:
-	prev();
+	prevPage();
 	break;
     case Qt::Key_Right:
     case Qt::Key_L:
-    case Qt::Key_Space:
     case Qt::Key_Next:
     case Qt::Key_Tab:
-	next();
+	nextPage();
 	break;
     case Qt::Key_Return:
 	close();
@@ -160,17 +166,28 @@ void CandidateList::move(int x, int y)
 
 void CandidateList::updateList()
 {
+    QListViewItemIterator it(m_listview);
     for (int i = 0; i < m_itemsPerPage; i++) {
+	QListViewItem *item = *it;
 	if (i + m_currentPage < m_size) {
 	    QString text;
-	    text += QString::number(i + 1);
-	    text += ".";
-	    text += QString::fromUtf8(m_list->items[i + m_currentPage]->value);
-	    m_labelList[i]->setText(text);
+	    text = QString::number(i + 1);
+	    item->setText(0, text);
+
+	    text = QString::fromUtf8(m_list->items[i + m_currentPage]->value);
+	    item->setText(1, text);
+
+	    text = QString::fromUtf8(m_list->items[i + m_currentPage]->comment);
+	    item->setText(2, text);
+	    item->setVisible(true);
 	} else {
-	    m_labelList[i]->setText("");
+	    item->setText(0, "");
+	    item->setText(1, "");
+	    item->setText(2, "");
+	    item->setVisible(false);
 	}
-	m_labelList[i]->setBackgroundMode(Qt::PaletteBackground);
+
+	++it;
     }
 }
 
@@ -178,10 +195,13 @@ void CandidateList::updateCursor()
 {
     m_key->setText(QString::fromUtf8(m_list->items[m_current]->value));
     m_comment->setText(QString::fromUtf8(m_list->items[m_current]->comment));
-    for (int i = 0; i < m_itemsPerPage; i++) {
-	m_labelList[i]->setBackgroundMode(Qt::PaletteBackground);
-    }
-    m_labelList[m_current - m_currentPage]->setBackgroundMode(Qt::PaletteHighlight);
+
+    QListViewItemIterator it(m_listview);
+    it += m_current - m_currentPage;
+    m_listview->setCurrentItem(*it);
+
+    QString statusText;
+    m_statusbar->message(statusText.sprintf("%d/%d", m_current + 1, m_size));
 }
 
 void
