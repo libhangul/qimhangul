@@ -21,8 +21,6 @@
 
 QInputContextPluginHangul::QInputContextPluginHangul()
 {
-    qDebug("QInputContextPluginHangul::");
-
     if (QInputContextHangul::hanjaTable)
 	hanja_table_destroy(QInputContextHangul::hanjaTable);
     QInputContextHangul::hanjaTable = hanja_table_load(NULL);
@@ -30,15 +28,12 @@ QInputContextPluginHangul::QInputContextPluginHangul()
 
 QInputContextPluginHangul::~QInputContextPluginHangul()
 {
-    qDebug("QInputContextPluginHangul::~");
-
     if (QInputContextHangul::hanjaTable)
 	hanja_table_destroy(QInputContextHangul::hanjaTable);
 }
 
 QStringList QInputContextPluginHangul::keys() const
 {
-    qDebug("QInputContextPluginHangul::keys()");
     QStringList keys;
     keys += "hangul2";
     keys += "hangul3f";
@@ -49,9 +44,8 @@ QStringList QInputContextPluginHangul::keys() const
     return keys;
 }
 
-QStringList QInputContextPluginHangul::languages( const QString &key )
+QStringList QInputContextPluginHangul::languages( const QString &/*key*/ )
 {
-    qDebug("QInputContextPluginHangul::languages()" + key);
     return QStringList() << "ko";
 }
 
@@ -73,9 +67,8 @@ QString QInputContextPluginHangul::displayName( const QString &key )
     return "Hangul 2 bul";
 }
 
-QString QInputContextPluginHangul::description( const QString &key )
+QString QInputContextPluginHangul::description( const QString &/*key*/ )
 {
-    qDebug("QInputContextPluginHangul::description()" + key);
     return "Qt input module for hangul";
 }
 
@@ -97,6 +90,5 @@ QInputContext* QInputContextPluginHangul::create( const QString &key )
 	return new QInputContextHangul(HANGUL_KEYBOARD_2);
     }
 
-    qDebug("QInputContextPluginHangul::create() - " + key);
     return 0;
 }

@@ -28,25 +28,24 @@
 
 HanjaTable* QInputContextHangul::hanjaTable = NULL;
 
-static inline QString ucsToQString(const ucschar *wcs);
+static inline QString ucsToQString(const ucschar *ucs);
 
 static bool
 filter(ucschar *str,
-       ucschar cho, ucschar jung, ucschar jong, void* /*data*/)
+       ucschar /*cho*/, ucschar /*jung*/, ucschar /*jong*/, void* /*data*/)
 {
     QTextCodec *codec = QTextCodec::codecForLocale();
     QString s = ucsToQString(str);
-    //qDebug("%x %x %x = %x %x", cho, jung, jong, str[0], str[1]);
     return codec->canEncode(s);
 }
 
-static inline QString ucsToQString(const ucschar *wcs)
+static inline QString ucsToQString(const ucschar *ucs)
 {
     QString str;
 
-    if (wcs != NULL) {
-	while (*wcs != L'\0')
-	    str += QChar(*wcs++);
+    if (ucs != NULL) {
+	while (*ucs != 0)
+	    str += QChar(*ucs++);
     }
     return str;
 }
@@ -58,16 +57,12 @@ QInputContextHangul::QInputContextHangul(HangulKeyboardType keyboard) :
 {
     m_hic = hangul_ic_new(keyboard);
     hangul_ic_set_filter(m_hic, filter, NULL);
-
-    qDebug("Hangul::");
 }
 
 QInputContextHangul::~QInputContextHangul()
 {
     if (m_hic != NULL)
 	hangul_ic_delete(m_hic);
-
-    qDebug("Hangul::~");
 }
 
 QString QInputContextHangul::identifierName()
@@ -83,7 +78,6 @@ QString QInputContextHangul::language()
 void QInputContextHangul::setFocus()
 {
     setModeInfo(m_mode);
-    qDebug("Hangul::setFocus");
 }
 
 void QInputContextHangul::unsetFocus()
@@ -95,8 +89,6 @@ void QInputContextHangul::unsetFocus()
     reset();
 
     setModeInfo(MODE_NONE);
-
-    qDebug("Hangul::unsetFocus");
 }
 
 void QInputContextHangul::setMicroFocus(int x, int y, int w, int h, QFont* /*f*/)
@@ -123,8 +115,6 @@ void QInputContextHangul::reset()
 	if (isComposing())
 	    sendIMEvent(QEvent::IMEnd, QString::null);
     }
-
-    qDebug("Hangul::reset");
 }
 
 QString QInputContextHangul::getPreeditString()
@@ -184,12 +174,11 @@ bool QInputContextHangul::backspace()
 bool QInputContextHangul::popupCandidateList()
 {
     const ucschar *text = hangul_ic_get_preedit_string(m_hic);
-    if (text != NULL && *text != L'\0') {
+    if (text != NULL && *text != 0) {
 	QString str;
 	str += QChar(text[0]);
 	HanjaList *list = hanja_table_match(hanjaTable, HANJA_MATCH_PREFIX,
 					    str.utf8());
-	qDebug("QInputContextHangul::popupCandidateList: %d\n", list->nitems);
 	m_candidateList = new CandidateList(list,
 					    m_rect.left(), m_rect.bottom());
     }
