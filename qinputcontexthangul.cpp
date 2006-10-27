@@ -101,14 +101,14 @@ void QInputContextHangul::setMicroFocus(int x, int y, int w, int h, QFont* /*f*/
 
 void QInputContextHangul::reset()
 {
-    hangul_ic_flush(m_hic);
+    const ucschar *flushed = hangul_ic_flush(m_hic);
 
     // we do not send preedit update IMEvent
     // because commit() send IMEnd event and it remove preedit string
     // QString preeditString = getPreeditString();
     // updatePreedit(preeditString);
 
-    QString commitString = getCommitString();
+    QString commitString = ucsToQString(flushed);
     if (!commitString.isEmpty()) {
 	commit(commitString);
     } else {
@@ -177,8 +177,7 @@ bool QInputContextHangul::popupCandidateList()
     if (text != NULL && *text != 0) {
 	QString str;
 	str += QChar(text[0]);
-	HanjaList *list = hanja_table_match(hanjaTable, HANJA_MATCH_PREFIX,
-					    str.utf8());
+	HanjaList *list = hanja_table_match_suffix(hanjaTable, str.utf8());
 	m_candidateList = new CandidateList(list,
 					    m_rect.left(), m_rect.bottom());
     }

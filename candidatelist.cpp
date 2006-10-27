@@ -41,7 +41,7 @@ CandidateList::CandidateList(const HanjaList *list, int x, int y) :
     m_frame(NULL)
 {
     if (m_list) {
-	m_size = m_list->nitems;
+	m_size = hanja_list_get_size(m_list);
 	m_itemsPerPage = 9;
 	
 	m_frame = new QFrame(0, "CandidateList",
@@ -174,10 +174,14 @@ void CandidateList::updateList()
 	    text = QString::number(i + 1);
 	    item->setText(0, text);
 
-	    text = QString::fromUtf8(m_list->items[i + m_currentPage]->value);
+	    const char *value = hanja_list_get_nth_value(m_list,
+						     i + m_currentPage);
+	    text = QString::fromUtf8(value);
 	    item->setText(1, text);
 
-	    text = QString::fromUtf8(m_list->items[i + m_currentPage]->comment);
+	    const char *comment = hanja_list_get_nth_comment(m_list,
+						     i + m_currentPage);
+	    text = QString::fromUtf8(comment);
 	    item->setText(2, text);
 	    item->setVisible(true);
 	} else {
@@ -193,8 +197,10 @@ void CandidateList::updateList()
 
 void CandidateList::updateCursor()
 {
-    m_key->setText(QString::fromUtf8(m_list->items[m_current]->value));
-    m_comment->setText(QString::fromUtf8(m_list->items[m_current]->comment));
+    const char* value = hanja_list_get_nth_value(m_list, m_current);
+    const char *comment = hanja_list_get_nth_comment(m_list, m_current);
+    m_key->setText(QString::fromUtf8(value));
+    m_comment->setText(QString::fromUtf8(comment));
 
     QListViewItemIterator it(m_listview);
     it += m_current - m_currentPage;
@@ -259,7 +265,7 @@ CandidateList::nextPage()
 const char*
 CandidateList::getCurrent()
 {
-    return m_list->items[m_current]->value;
+    return hanja_list_get_nth_value(m_list, m_current);
 }
 
 void
@@ -277,5 +283,5 @@ CandidateList::getNth(int index)
     if (index < 0 && index >= m_size)
 	return NULL;
 
-    return m_list->items[index]->value;
+    return hanja_list_get_nth_value(m_list, index);
 }
