@@ -3,7 +3,7 @@ qimhangul은 Qt-immodule 패치된 Qt를 위한 한글 입력 모듈입니다.
 Qt-immodule에 대해서는 아래 링크를 참고하세요:
 http://www.freedesktop.org/Software/immodule-qt
 
-빌드하기 위해서는 libhangul 패키지 0.0.3 버젼 이상이 필요합니다.
+빌드하기 위해서는 libhangul 패키지 0.0.4 버젼 이상이 필요합니다.
 libhangul은 다음 링크에서 구하실 수 있습니다.
 http://kldp.net/projects/hangul/
 

@@ -26,7 +26,7 @@
 
 class QInputContextHangul : public QInputContext {
 public:
-    QInputContextHangul(HangulKeyboardType keyboard);
+    QInputContextHangul(const char* keyboard);
     ~QInputContextHangul();
     
     virtual QString identifierName();

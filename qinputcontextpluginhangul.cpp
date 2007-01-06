@@ -22,14 +22,14 @@
 QInputContextPluginHangul::QInputContextPluginHangul()
 {
     if (QInputContextHangul::hanjaTable)
-	hanja_table_destroy(QInputContextHangul::hanjaTable);
+	hanja_table_delete(QInputContextHangul::hanjaTable);
     QInputContextHangul::hanjaTable = hanja_table_load(NULL);
 }
 
 QInputContextPluginHangul::~QInputContextPluginHangul()
 {
     if (QInputContextHangul::hanjaTable)
-	hanja_table_destroy(QInputContextHangul::hanjaTable);
+	hanja_table_delete(QInputContextHangul::hanjaTable);
 }
 
 QStringList QInputContextPluginHangul::keys() const
@@ -74,21 +74,7 @@ QString QInputContextPluginHangul::description( const QString &/*key*/ )
 
 QInputContext* QInputContextPluginHangul::create( const QString &key )
 {
-    if (key == "hangul2") {
-	return new QInputContextHangul(HANGUL_KEYBOARD_2);
-    } else if (key == "hangul3f") {
-	return new QInputContextHangul(HANGUL_KEYBOARD_3FINAL);
-    } else if (key == "hangul39") {
-	return new QInputContextHangul(HANGUL_KEYBOARD_390);
-    } else if (key == "hangul3s") {
-	return new QInputContextHangul(HANGUL_KEYBOARD_3NOSHIFT);
-    } else if (key == "hangul3y") {
-	return new QInputContextHangul(HANGUL_KEYBOARD_3YETGUL);
-    } else if (key == "hangul32") {
-	return new QInputContextHangul(HANGUL_KEYBOARD_32);
-    } else {
-	return new QInputContextHangul(HANGUL_KEYBOARD_2);
-    }
-
-    return 0;
+    QString id = key;
+    id.remove(0, 6);
+    return new QInputContextHangul(id);
 }

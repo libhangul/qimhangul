@@ -50,7 +50,7 @@ static inline QString ucsToQString(const ucschar *ucs)
     return str;
 }
 
-QInputContextHangul::QInputContextHangul(HangulKeyboardType keyboard) :
+QInputContextHangul::QInputContextHangul(const char* keyboard) :
     m_candidateList(NULL),
     m_mode(MODE_DIRECT),
     m_rect(0, 0, 0, 0)
