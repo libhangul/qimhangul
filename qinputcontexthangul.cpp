@@ -31,8 +31,8 @@ HanjaTable* QInputContextHangul::hanjaTable = NULL;
 static inline QString ucsToQString(const ucschar *ucs);
 
 static bool
-filter(ucschar *str,
-       ucschar /*cho*/, ucschar /*jung*/, ucschar /*jong*/, void* /*data*/)
+filter(HangulInputContext* /* hic */,
+       ucschar /* c */, const ucschar *str, void* /* data */)
 {
     QTextCodec *codec = QTextCodec::codecForLocale();
     QString s = ucsToQString(str);
