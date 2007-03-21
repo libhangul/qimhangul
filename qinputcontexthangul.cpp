@@ -31,8 +31,8 @@ HanjaTable* QInputContextHangul::hanjaTable = NULL;
 static inline QString ucsToQString(const ucschar *ucs);
 
 static bool
-filter(HangulInputContext* /* hic */,
-       ucschar /* c */, const ucschar *str, void* /* data */)
+onTransition(HangulInputContext* /* hic */,
+	     ucschar /* c */, const ucschar *str, void* /* data */)
 {
     QTextCodec *codec = QTextCodec::codecForLocale();
     QString s = ucsToQString(str);
@@ -56,7 +56,7 @@ QInputContextHangul::QInputContextHangul(const char* keyboard) :
     m_rect(0, 0, 0, 0)
 {
     m_hic = hangul_ic_new(keyboard);
-    hangul_ic_set_filter(m_hic, filter, NULL);
+    hangul_ic_connect_transition(m_hic, onTransition, NULL);
 }
 
 QInputContextHangul::~QInputContextHangul()
