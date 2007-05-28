@@ -56,7 +56,7 @@ QInputContextHangul::QInputContextHangul(const char* keyboard) :
     m_rect(0, 0, 0, 0)
 {
     m_hic = hangul_ic_new(keyboard);
-    hangul_ic_connect_transition(m_hic, onTransition, NULL);
+    hangul_ic_connect_callback(m_hic, "transition", (void*)onTransition, NULL);
 }
 
 QInputContextHangul::~QInputContextHangul()
