@@ -119,12 +119,12 @@ void QInputContextHangul::reset()
     }
 }
 
-QString QInputContextHangul::getPreeditString()
+QString QInputContextHangul::getPreeditString() const
 {
     return ucsToQString(hangul_ic_get_preedit_string(m_hic));
 }
 
-QString QInputContextHangul::getCommitString()
+QString QInputContextHangul::getCommitString() const
 {
     return ucsToQString(hangul_ic_get_commit_string(m_hic));
 }
@@ -269,5 +269,10 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
 
 bool QInputContextHangul::isComposing() const
 {
-    return true;
+    QString preeditString = getPreeditString();
+
+    if (!preeditString.isEmpty())
+	return true;
+    else
+	return false;
 }

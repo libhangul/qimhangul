@@ -57,8 +57,8 @@ private:
 
     bool isTriggerKey(const QKeyEvent *event);
     bool isCandidateKey(const QKeyEvent *event);
-    QString getPreeditString();
-    QString getCommitString();
+    QString getPreeditString() const;
+    QString getCommitString() const;
     void updatePreedit(const QString &str);
     void commit(const QString &str);
     bool backspace();
