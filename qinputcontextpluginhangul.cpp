@@ -76,5 +76,5 @@ QInputContext* QInputContextPluginHangul::create( const QString &key )
 {
     QString id = key;
     id.remove(0, 6);
-    return new QInputContextHangul(id);
+    return new QInputContextHangul(id.toUtf8());
 }

@@ -19,15 +19,17 @@
 #ifndef _CANDIDATE_H_
 #define _CANDIDATE_H_
 
-#include <qstring.h>
-#include <qptrvector.h>
+#include <QString>
 #include <hangul.h>
 
 class QLabel;
 class QFrame;
-class QListView;
+class QTreeWidget;
 class QStatusBar;
 class QKeyEvent;
+class QMenu;
+class QAction;
+
 class CandidateList {
 public:
     CandidateList(const HanjaList *list, int x, int y);
@@ -58,11 +60,12 @@ private:
     int m_itemsPerPage;
     int m_currentPage;
     int m_current;
+
     QFrame *m_frame;
-    QLabel *m_key;
-    QLabel *m_comment;
-    QListView *m_listview;
-    QStatusBar *m_statusbar;
+    QLabel **m_indexes;
+    QLabel **m_values;
+    QLabel **m_comments;
+    QLabel *m_statusbar;
 };
 
 #endif /* _CANDIDATE_H_ */

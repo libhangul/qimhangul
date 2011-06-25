@@ -17,12 +17,16 @@
  */
 
 #include <stack>
-#include <wchar.h>
 
 #include <hangul.h>
 #include "candidatelist.h"
 
-#include <qinputcontext.h>
+#include <QString>
+#include <QRect>
+#include <QInputContext>
+
+class QEvent;
+class QFont;
 
 class QInputContextHangul : public QInputContext {
 public:
@@ -38,6 +42,7 @@ public:
     virtual void unsetFocus();
     virtual void setMicroFocus( int x, int y, int w, int h, QFont *f = 0 );
     virtual void reset();
+    virtual bool isComposing() const;
 
     static HanjaTable* hanjaTable;
 

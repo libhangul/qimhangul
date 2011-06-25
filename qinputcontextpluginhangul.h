@@ -16,9 +16,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qinputcontextplugin.h>
+#include <QString>
+#include <QStringList>
+#include <QInputContextPlugin>
 
 class QInputContextPluginHangul : public QInputContextPlugin
 {
