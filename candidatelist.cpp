@@ -40,12 +40,15 @@ CandidateList::CandidateList() :
     m_itemsPerPage = 9;
 
     m_frame = new QFrame(NULL, Qt::Dialog | Qt::X11BypassWindowManagerHint);
-    m_frame->setFrameStyle(QFrame::Panel | QFrame::Raised);
+    m_frame->setFrameStyle(QFrame::Panel | QFrame::Plain);
 
     QBoxLayout *vlayout = new QVBoxLayout(m_frame);
+    vlayout->setSpacing(0);
+    vlayout->setMargin(3);
 
     QGridLayout* glayout = new QGridLayout();
     glayout->setSpacing(0);
+    glayout->setMargin(0);
     glayout->setColumnStretch(2, 1);
     vlayout->addLayout(glayout);
 
@@ -54,7 +57,7 @@ CandidateList::CandidateList() :
     m_comments = new QLabel*[m_itemsPerPage];
 
     for (int i = 0; i < m_itemsPerPage; i++) {
-	m_indexes[i] = new QLabel(QString::number(i + 1), m_frame);
+	m_indexes[i] = new QLabel(QString().sprintf(" %d ", i + 1), m_frame);
 	m_indexes[i]->setAutoFillBackground(true);
 	m_indexes[i]->setMargin(3);
 	glayout->addWidget(m_indexes[i], i, 0);
