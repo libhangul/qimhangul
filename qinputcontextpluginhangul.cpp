@@ -34,13 +34,16 @@ QInputContextPluginHangul::~QInputContextPluginHangul()
 
 QStringList QInputContextPluginHangul::keys() const
 {
+    int n = hangul_ic_get_n_keyboards();
+
     QStringList keys;
-    keys += "hangul2";
-    keys += "hangul3f";
-    keys += "hangul39";
-    keys += "hangul3s";
-    keys += "hangul3y";
-    keys += "hangul32";
+
+    for (int i = 0; i < n; ++i) {
+	const char* id = hangul_ic_get_keyboard_id(i);
+
+	keys += QString("hangul").append(id);
+    }
+
     return keys;
 }
 
@@ -51,20 +54,23 @@ QStringList QInputContextPluginHangul::languages( const QString &/*key*/ )
 
 QString QInputContextPluginHangul::displayName( const QString &key )
 {
-    if (key == "hangul2") {
-	return "Hangul 2 bul";
-    } else if (key == "hangul3f") {
-	return "Hangul 3 bul final";
-    } else if (key == "hangul39") {
-	return "Hangul 3 bul 390";
-    } else if (key == "hangul3s") {
-	return "Hangul 3 bul no-shift";
-    } else if (key == "hangul3y") {
-	return "Hangul 3 bul yetgul";
-    } else if (key == "hangul32") {
-	return "Hangul 3 bul 2bul layout";
+    int i;
+    int n;
+    const char* name;
+
+    QString id = key.mid(sizeof("hangul") - 1, -1);
+
+    n = hangul_ic_get_n_keyboards();
+    for (i = 0; i < n; ++i) {
+	const char* s = hangul_ic_get_keyboard_id(i);
+
+	if (id == s) {
+	    name = hangul_ic_get_keyboard_name(i);
+	    return QString::fromUtf8(name);
+	}
     }
-    return "Hangul 2 bul";
+
+    return "";
 }
 
 QString QInputContextPluginHangul::description( const QString &/*key*/ )
@@ -74,7 +80,6 @@ QString QInputContextPluginHangul::description( const QString &/*key*/ )
 
 QInputContext* QInputContextPluginHangul::create( const QString &key )
 {
-    QString id = key;
-    id.remove(0, 6);
+    QString id = key.mid(sizeof("hangul") - 1, -1);
     return new QInputContextHangul(id.toUtf8());
 }
