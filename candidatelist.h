@@ -32,14 +32,18 @@ class QAction;
 
 class CandidateList {
 public:
-    CandidateList(const HanjaList *list, int x, int y);
+    CandidateList();
     virtual ~CandidateList();
+
+    void open(const HanjaList* list, int x, int y);
+    void move(int x, int y);
+    void close();
+
+    bool isVisible() const;
 
     bool filterEvent(const QKeyEvent *event);
     bool isSelected() { return m_selected; }
     QString getCandidate();
-
-    void move(int x, int y);
 
 private:
     void prev();
@@ -50,7 +54,6 @@ private:
     const char* getNth(int index);
     void setCurrent(int index);
     void setPosition(int x, int y);
-    void close();
     void updateList();
     void updateCursor();
 

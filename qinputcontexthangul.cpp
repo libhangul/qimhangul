@@ -62,6 +62,8 @@ QInputContextHangul::QInputContextHangul(const char* keyboard) :
 
 QInputContextHangul::~QInputContextHangul()
 {
+    delete m_candidateList;
+
     if (m_hic != NULL)
 	hangul_ic_delete(m_hic);
 }
@@ -91,16 +93,15 @@ void QInputContextHangul::unsetFocus()
 void QInputContextHangul::setMicroFocus(int x, int y, int w, int h, QFont* /*f*/)
 {
     m_rect.setRect(x, y, w, h);
-    if (m_candidateList != NULL) {
+    if (m_candidateList != NULL && m_candidateList->isVisible()) {
 	m_candidateList->move(x, y + h);
     }
 }
 
 void QInputContextHangul::reset()
 {
-    if (m_candidateList != NULL) {
-	delete m_candidateList;
-	m_candidateList = NULL;
+    if (m_candidateList != NULL && m_candidateList->isVisible()) {
+	m_candidateList->close();
     }
 
     const ucschar *flushed = hangul_ic_flush(m_hic);
@@ -175,11 +176,19 @@ bool QInputContextHangul::popupCandidateList()
 	str += QChar(text[0]);
 	HanjaList *list = hanja_table_match_suffix(hanjaTable, str.toUtf8());
 
+	if (m_candidateList == NULL)
+	    m_candidateList = new CandidateList();
+
+	QPoint p(0, 0);
+
 	QWidget *focus = focusWidget();
-	QVariant v = focus->inputMethodQuery(Qt::ImMicroFocus);
-	QRect r = v.toRect();
-	QPoint p = focus->mapToGlobal(QPoint(r.right(), r.bottom()));
-	m_candidateList = new CandidateList(list, p.x(), p.y());
+	if (focus != NULL) {
+	    QVariant v = focus->inputMethodQuery(Qt::ImMicroFocus);
+	    QRect r = v.toRect();
+	    p = focus->mapToGlobal(QPoint(r.right(), r.bottom()));
+	}
+
+	m_candidateList->open(list, p.x(), p.y());
     }
 
     return false;
@@ -191,15 +200,14 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
 	return false;
 
     const QKeyEvent *keyevent = static_cast<const QKeyEvent*>(event);
-    if (m_candidateList != NULL) {
+    if (m_candidateList != NULL && m_candidateList->isVisible()) {
 	if (m_candidateList->filterEvent(keyevent)) {
 	    if (m_candidateList->isSelected()) {
 		hangul_ic_reset(m_hic);
 		QString candidate(m_candidateList->getCandidate());
 		commit(candidate);
 	    }
-	    delete m_candidateList;
-	    m_candidateList = NULL;
+	    m_candidateList->close();
 	}
 	return true;
     }

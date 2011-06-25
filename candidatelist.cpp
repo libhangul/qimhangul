@@ -29,63 +29,81 @@
 
 #include "candidatelist.h"
 
-CandidateList::CandidateList(const HanjaList* list, int x, int y) :
-    m_list(list),
+CandidateList::CandidateList() :
+    m_list(NULL),
     m_selected(false),
     m_size(0),
     m_currentPage(0),
     m_current(0),
     m_frame(NULL)
 {
-    if (m_list) {
+    m_itemsPerPage = 9;
+
+    m_frame = new QFrame(NULL, Qt::Dialog | Qt::X11BypassWindowManagerHint);
+    m_frame->setFrameStyle(QFrame::Panel | QFrame::Raised);
+
+    QBoxLayout *vlayout = new QVBoxLayout(m_frame);
+
+    QGridLayout* glayout = new QGridLayout();
+    glayout->setSpacing(0);
+    glayout->setColumnStretch(2, 1);
+    vlayout->addLayout(glayout);
+
+    m_indexes = new QLabel*[m_itemsPerPage];
+    m_values = new QLabel*[m_itemsPerPage];
+    m_comments = new QLabel*[m_itemsPerPage];
+
+    for (int i = 0; i < m_itemsPerPage; i++) {
+	m_indexes[i] = new QLabel(QString::number(i + 1), m_frame);
+	m_indexes[i]->setAutoFillBackground(true);
+	m_indexes[i]->setMargin(3);
+	glayout->addWidget(m_indexes[i], i, 0);
+
+	m_values[i] = new QLabel(m_frame);
+	m_values[i]->setAutoFillBackground(true);
+	m_values[i]->setMargin(3);
+	glayout->addWidget(m_values[i], i, 1);
+
+	m_comments[i] = new QLabel(m_frame);
+	m_comments[i]->setWordWrap(true);
+	m_comments[i]->setAutoFillBackground(true);
+	m_comments[i]->setMargin(3);
+	glayout->addWidget(m_comments[i], i, 2);
+    }
+
+    QFont font(m_values[0]->font());
+    if (font.pointSize() < 0)
+	font.setPixelSize(font.pixelSize() * 15 / 10);
+    else
+	font.setPointSize(font.pointSize() * 15 / 10);
+
+    for (int i = 0; i < m_itemsPerPage; i++) {
+	m_values[i]->setFont(font);
+    }
+
+    m_statusbar = new QLabel(m_frame);
+    m_statusbar->setAlignment(Qt::AlignRight);
+    vlayout->addWidget(m_statusbar);
+}
+
+CandidateList::~CandidateList()
+{
+    delete[] m_indexes;
+    delete[] m_values;
+    delete[] m_comments;
+
+    delete m_frame;
+}
+
+void CandidateList::open(const HanjaList* list, int x, int y)
+{
+    m_list = list;
+    m_selected = false;
+    m_currentPage = 0;
+    m_current = 0;
+
+    if (m_list != NULL) {
 	m_size = hanja_list_get_size(m_list);
-	m_itemsPerPage = 9;
-
-	m_frame = new QFrame(NULL, Qt::Dialog | Qt::X11BypassWindowManagerHint);
-	m_frame->setFrameStyle(QFrame::Panel | QFrame::Raised);
-
-	QBoxLayout *vlayout = new QVBoxLayout(m_frame);
-
-	QGridLayout* glayout = new QGridLayout();
-	glayout->setSpacing(0);
-	glayout->setColumnStretch(2, 1);
-	vlayout->addLayout(glayout);
-
-	m_indexes = new QLabel*[m_itemsPerPage];
-	m_values = new QLabel*[m_itemsPerPage];
-	m_comments = new QLabel*[m_itemsPerPage];
-
-	for (int i = 0; i < m_itemsPerPage; i++) {
-	    m_indexes[i] = new QLabel(QString::number(i + 1), m_frame);
-	    m_indexes[i]->setAutoFillBackground(true);
-	    m_indexes[i]->setMargin(3);
-	    glayout->addWidget(m_indexes[i], i, 0);
-
-	    m_values[i] = new QLabel(m_frame);
-	    m_values[i]->setAutoFillBackground(true);
-	    m_values[i]->setMargin(3);
-	    glayout->addWidget(m_values[i], i, 1);
-
-	    m_comments[i] = new QLabel(m_frame);
-	    m_comments[i]->setWordWrap(true);
-	    m_comments[i]->setAutoFillBackground(true);
-	    m_comments[i]->setMargin(3);
-	    glayout->addWidget(m_comments[i], i, 2);
-	}
-
-	QFont font(m_values[0]->font());
-	if (font.pointSize() < 0)
-	    font.setPixelSize(font.pixelSize() * 15 / 10);
-	else
-	    font.setPointSize(font.pointSize() * 15 / 10);
-
-	for (int i = 0; i < m_itemsPerPage; i++) {
-	    m_values[i]->setFont(font);
-	}
-
-	m_statusbar = new QLabel(m_frame);
-	m_statusbar->setAlignment(Qt::AlignRight);
-	vlayout->addWidget(m_statusbar);
 
 	updateList();
 	updateCursor();
@@ -95,14 +113,12 @@ CandidateList::CandidateList(const HanjaList* list, int x, int y) :
     }
 }
 
-CandidateList::~CandidateList()
+bool CandidateList::isVisible() const
 {
-    delete[] m_indexes;
-    delete[] m_values;
-    delete[] m_comments;
-
     if (m_frame != NULL)
-	delete m_frame;
+	return m_frame->isVisible();
+
+    return false;
 }
 
 QString CandidateList::getCandidate()
@@ -162,8 +178,8 @@ bool CandidateList::filterEvent(const QKeyEvent *event)
 
 void CandidateList::close()
 {
-    delete m_frame;
-    m_frame = NULL;
+    if (m_frame != NULL)
+	m_frame->hide();
 }
 
 void CandidateList::move(int x, int y)
