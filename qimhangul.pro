@@ -4,8 +4,9 @@ TEMPLATE = lib
 TARGET = qimhangul
 VERSION = 0.1.2
 DISTFILES += ChangeLog ChangeLog.old COPYING AUTHORS README
+QT_PLUGIN_DIR = $$[QT_INSTALL_PLUGINS]
 
-target.path = $(QTDIR)/plugins/inputmethods
+target.path = $${QT_PLUGIN_DIR}/inputmethods
 INSTALLS += target
 
 CONFIG += debug plugin qt thread
