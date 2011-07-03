@@ -1,0 +1,5 @@
+qimhangul 0.2.0
+
+ * Qt4 지원 (Qt3로는 컴파일 안됨)
+ * Autotools 사용
+ * libhangul 0.0.12 지원
