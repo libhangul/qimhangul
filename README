@@ -8,7 +8,7 @@ libhangul은 다음 링크에서 구하실 수 있습니다.
 http://kldp.net/projects/hangul/
 
 빌드와 설치 방법
- $ qmake -makefile
+ $ ./configure 또는 ./configure --with-qt-plugin-dir=[Qt plugin 디렉토리]
  $ make
  # make install
 
@@ -33,9 +33,9 @@ You need libhangul to build qimhangul. You can get libhangul here:
 http://kldp.net/projects/hangul/
 
 How to build and install
- $ qmake -makefile
+ $ ./configure or ./configure --with-qt-plugin-dir=[where your Qt plugin dir is]
  $ make
- $ make install
+ # make install
 
 For further information
- see http://kde.kldp.org/wiki/wiki.php/qimhangul
+ see http://kldp.net/projects/qimhangul/
