@@ -40,6 +40,8 @@ public:
 
     bool filterEvent(const QEvent* event) override;
 
+    void setFocusObject(QObject* object);
+
     virtual void setFocus();
     virtual void unsetFocus();
     virtual void setMicroFocus( int x, int y, int w, int h, QFont *f = 0 );
@@ -71,4 +73,5 @@ private:
     HangulInputContext *m_hic;
     InputMode m_mode;
     QRect m_rect;
+    QObject* m_focusObject;
 };

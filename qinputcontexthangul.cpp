@@ -57,7 +57,8 @@ static inline QString ucsToQString(const ucschar *ucs)
 QInputContextHangul::QInputContextHangul(const QStringList& paramList) :
     m_candidateList(NULL),
     m_mode(MODE_DIRECT),
-    m_rect(0, 0, 0, 0)
+    m_rect(0, 0, 0, 0),
+    m_focusObject(nullptr)
 {
     QString keyboard;
     if (paramList.isEmpty()) {
@@ -136,14 +137,13 @@ QString QInputContextHangul::getCommitString() const
 
 void QInputContextHangul::updatePreedit(const QString &str)
 {
-    QObject* input = qGuiApp->focusObject();
-    if (input == NULL) {
+    if (m_focusObject == nullptr) {
         return;
     }
 
     QList<QInputMethodEvent::Attribute> attrs;
 
-    QWidget* widget = qobject_cast<QWidget*>(input);
+    QWidget* widget = qobject_cast<QWidget*>(m_focusObject);
     if (widget != NULL) {
         const QPalette& palette = widget->palette();
 
@@ -155,19 +155,18 @@ void QInputContextHangul::updatePreedit(const QString &str)
     }
 
     QInputMethodEvent e(str, attrs);
-    QCoreApplication::sendEvent(input, &e);
+    QCoreApplication::sendEvent(m_focusObject, &e);
 }
 
 void QInputContextHangul::commit(const QString &str)
 {
-    QObject* input = qGuiApp->focusObject();
-    if (input == NULL) {
+    if (m_focusObject == nullptr) {
         return;
     }
 
     QInputMethodEvent e;
     e.setCommitString(str);
-    QCoreApplication::sendEvent(input, &e);
+    QCoreApplication::sendEvent(m_focusObject, &e);
 }
 
 bool QInputContextHangul::isTriggerKey(const QKeyEvent *event)
@@ -205,8 +204,9 @@ bool QInputContextHangul::popupCandidateList()
 
 	QPoint p(0, 0);
 
-        QWindow* focusWindow = qGuiApp->focusWindow();
-        if (focusWindow != NULL) {
+        QWidget* focusWidget = m_focusObject ? qobject_cast<QWidget*>(m_focusObject) : nullptr;
+        if (focusWidget != NULL) {
+            QWidget* focusWindow = focusWidget->window();
             QRect cursorRect = qGuiApp->inputMethod()->cursorRectangle().toRect();
             p = focusWindow->mapToGlobal(cursorRect.bottomRight());
         }
@@ -298,4 +298,12 @@ bool QInputContextHangul::isComposing() const
 	return true;
     else
 	return false;
+}
+
+void
+QInputContextHangul::setFocusObject(QObject* object)
+{
+    m_focusObject = object;
+
+    QPlatformInputContext::setFocusObject(object);
 }
