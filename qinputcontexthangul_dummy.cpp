@@ -1,5 +1,5 @@
 /* qimhangul - Qt input module for hangul
- * Copyright (C) 2004 Choe Hwanjin
+ * Copyright (C) 2020 Choe Hwanjin
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,18 +16,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
-#include <QString>
-#include <QStringList>
-#include <qpa/qplatforminputcontextplugin_p.h>
+#include "qinputcontexthangul.h"
 
-class QInputContextPluginHangul : public QPlatformInputContextPlugin
+void
+QInputContextHangul::setModeInfo(int /*mode*/)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID QPlatformInputContextFactoryInterface_iid FILE "qimhangul.json")
-
-public:
-    QInputContextPluginHangul(QObject* parent = nullptr);
-    ~QInputContextPluginHangul();
-
-    QPlatformInputContext* create(const QString &key, const QStringList& paramList) override;
-};
+}

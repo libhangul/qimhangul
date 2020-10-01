@@ -23,20 +23,25 @@
 
 #include <QString>
 #include <QRect>
-#include <QInputContext>
+
+#include <qpa/qplatforminputcontext.h>
 
 class QEvent;
 class QFont;
 
-class QInputContextHangul : public QInputContext {
+class QInputContextHangul : public QPlatformInputContext {
+    Q_OBJECT
+
 public:
-    QInputContextHangul(const char* keyboard);
+    QInputContextHangul(const QStringList& paramList);
     ~QInputContextHangul();
-    
+
+    bool isValid() const override;
+
+    bool filterEvent(const QEvent* event) override;
+
     virtual QString identifierName();
     virtual QString language();
-
-    virtual bool filterEvent( const QEvent *event );
 
     virtual void setFocus();
     virtual void unsetFocus();
@@ -70,9 +75,3 @@ private:
     InputMode m_mode;
     QRect m_rect;
 };
-
-#if !defined(Q_WS_X11)
-inline void QInputContextHangul::setModeInfo(int /*mode*/)
-{
-}
-#endif

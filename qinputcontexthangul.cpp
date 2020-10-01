@@ -23,6 +23,9 @@
 #include <QTextCodec>
 #include <QTextFormat>
 #include <QWidget>
+#include <QWindow>
+#include <QCoreApplication>
+#include <QGuiApplication>
 
 #include <hangul.h>
 #include "qinputcontexthangul.h"
@@ -51,12 +54,18 @@ static inline QString ucsToQString(const ucschar *ucs)
     return str;
 }
 
-QInputContextHangul::QInputContextHangul(const char* keyboard) :
+QInputContextHangul::QInputContextHangul(const QStringList& paramList) :
     m_candidateList(NULL),
     m_mode(MODE_DIRECT),
     m_rect(0, 0, 0, 0)
 {
-    m_hic = hangul_ic_new(keyboard);
+    QString keyboard;
+    if (paramList.isEmpty()) {
+        keyboard = "2";
+    } else {
+        keyboard = paramList.front();
+    }
+    m_hic = hangul_ic_new(keyboard.toUtf8());
     hangul_ic_connect_callback(m_hic, "transition", (void*)onTransition, NULL);
 }
 
@@ -66,6 +75,12 @@ QInputContextHangul::~QInputContextHangul()
 
     if (m_hic != NULL)
 	hangul_ic_delete(m_hic);
+}
+
+bool
+QInputContextHangul::isValid() const
+{
+    return true;
 }
 
 QString QInputContextHangul::identifierName()
@@ -131,19 +146,38 @@ QString QInputContextHangul::getCommitString() const
 
 void QInputContextHangul::updatePreedit(const QString &str)
 {
+    QObject* input = qGuiApp->focusObject();
+    if (input == NULL) {
+        return;
+    }
+
     QList<QInputMethodEvent::Attribute> attrs;
-    attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, 0,
-		  str.length(), standardFormat(QInputContext::PreeditFormat));
+
+    QWidget* widget = qobject_cast<QWidget*>(input);
+    if (widget != NULL) {
+        const QPalette& palette = widget->palette();
+
+        QTextCharFormat format;
+        format.setBackground(palette.color(QPalette::Text));
+        format.setForeground(palette.color(QPalette::Window));
+        attrs += QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
+                0, str.length(), format);
+    }
 
     QInputMethodEvent e(str, attrs);
-    sendEvent(e);
+    QCoreApplication::sendEvent(input, &e);
 }
 
 void QInputContextHangul::commit(const QString &str)
 {
+    QObject* input = qGuiApp->focusObject();
+    if (input == NULL) {
+        return;
+    }
+
     QInputMethodEvent e;
     e.setCommitString(str);
-    sendEvent(e);
+    QCoreApplication::sendEvent(input, &e);
 }
 
 bool QInputContextHangul::isTriggerKey(const QKeyEvent *event)
@@ -181,12 +215,11 @@ bool QInputContextHangul::popupCandidateList()
 
 	QPoint p(0, 0);
 
-	QWidget *focus = focusWidget();
-	if (focus != NULL) {
-	    QVariant v = focus->inputMethodQuery(Qt::ImMicroFocus);
-	    QRect r = v.toRect();
-	    p = focus->mapToGlobal(QPoint(r.right(), r.bottom()));
-	}
+        QWindow* focusWindow = qGuiApp->focusWindow();
+        if (focusWindow != NULL) {
+            QRect cursorRect = qGuiApp->inputMethod()->cursorRectangle().toRect();
+            p = focusWindow->mapToGlobal(cursorRect.bottomRight());
+        }
 
 	m_candidateList->open(list, p.x(), p.y());
     }

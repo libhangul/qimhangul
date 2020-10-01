@@ -16,10 +16,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
-#include "qinputcontexthangul.h"
 #include "qinputcontextpluginhangul.h"
+#include "qinputcontexthangul.h"
 
-QInputContextPluginHangul::QInputContextPluginHangul()
+#include <QDebug>
+
+QInputContextPluginHangul::QInputContextPluginHangul(QObject* parent/*= nullptr*/) :
+    QPlatformInputContextPlugin(parent)
 {
     if (QInputContextHangul::hanjaTable)
 	hanja_table_delete(QInputContextHangul::hanjaTable);
@@ -32,54 +35,8 @@ QInputContextPluginHangul::~QInputContextPluginHangul()
 	hanja_table_delete(QInputContextHangul::hanjaTable);
 }
 
-QStringList QInputContextPluginHangul::keys() const
+QPlatformInputContext*
+QInputContextPluginHangul::create(const QString& /*key*/, const QStringList& paramList)
 {
-    int n = hangul_ic_get_n_keyboards();
-
-    QStringList keys;
-
-    for (int i = 0; i < n; ++i) {
-	const char* id = hangul_ic_get_keyboard_id(i);
-
-	keys += QString("hangul").append(id);
-    }
-
-    return keys;
-}
-
-QStringList QInputContextPluginHangul::languages( const QString &/*key*/ )
-{
-    return QStringList() << "ko";
-}
-
-QString QInputContextPluginHangul::displayName( const QString &key )
-{
-    int i;
-    int n;
-    const char* name;
-
-    QString id = key.mid(sizeof("hangul") - 1, -1);
-
-    n = hangul_ic_get_n_keyboards();
-    for (i = 0; i < n; ++i) {
-	const char* s = hangul_ic_get_keyboard_id(i);
-
-	if (id == s) {
-	    name = hangul_ic_get_keyboard_name(i);
-	    return QString::fromUtf8(name);
-	}
-    }
-
-    return "";
-}
-
-QString QInputContextPluginHangul::description( const QString &/*key*/ )
-{
-    return "Qt input module for hangul";
-}
-
-QInputContext* QInputContextPluginHangul::create( const QString &key )
-{
-    QString id = key.mid(sizeof("hangul") - 1, -1);
-    return new QInputContextHangul(id.toUtf8());
+    return new QInputContextHangul(paramList);
 }
