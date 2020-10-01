@@ -40,9 +40,6 @@ public:
 
     bool filterEvent(const QEvent* event) override;
 
-    virtual QString identifierName();
-    virtual QString language();
-
     virtual void setFocus();
     virtual void unsetFocus();
     virtual void setMicroFocus( int x, int y, int w, int h, QFont *f = 0 );

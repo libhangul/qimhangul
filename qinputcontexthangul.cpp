@@ -83,16 +83,6 @@ QInputContextHangul::isValid() const
     return true;
 }
 
-QString QInputContextHangul::identifierName()
-{
-    return "Hangul";
-}
-
-QString QInputContextHangul::language()
-{
-    return "Hangul";
-}
-
 void QInputContextHangul::setFocus()
 {
     setModeInfo(m_mode);
