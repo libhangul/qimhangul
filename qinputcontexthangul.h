@@ -23,6 +23,7 @@
 
 #include <QString>
 #include <QRect>
+#include <QInputMethodEvent>
 
 #include <qpa/qplatforminputcontext.h>
 
@@ -62,6 +63,7 @@ private:
     bool isTriggerKey(const QKeyEvent *event);
     bool isCandidateKey(const QKeyEvent *event);
     QString getPreeditString() const;
+    QList<QInputMethodEvent::Attribute> getPreeditAttrs(const QString& preeditString);
     QString getCommitString() const;
     void updatePreedit(const QString &str);
     void commit(const QString &str);

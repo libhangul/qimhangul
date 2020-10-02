@@ -130,6 +130,31 @@ QString QInputContextHangul::getPreeditString() const
     return ucsToQString(hangul_ic_get_preedit_string(m_hic));
 }
 
+QList<QInputMethodEvent::Attribute>
+QInputContextHangul::getPreeditAttrs(const QString& preeditString)
+{
+    QList<QInputMethodEvent::Attribute> attrs;
+
+    if (m_focusObject == nullptr) {
+        return attrs;
+    }
+
+    QWidget* widget = qobject_cast<QWidget*>(m_focusObject);
+    if (widget == NULL) {
+        return attrs;
+    }
+
+    const QPalette& palette = widget->palette();
+
+    QTextCharFormat format;
+    format.setBackground(palette.color(QPalette::Text));
+    format.setForeground(palette.color(QPalette::Window));
+    attrs += QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
+            0, preeditString.length(), format);
+
+    return attrs;
+}
+
 QString QInputContextHangul::getCommitString() const
 {
     return ucsToQString(hangul_ic_get_commit_string(m_hic));
@@ -276,13 +301,18 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
 	    ascii = text[0].unicode();
 	bool ret = hangul_ic_process(m_hic, ascii);
 
-	QString commitString = getCommitString();
-	if (!commitString.isEmpty())
-	    commit(commitString);
+        QString preeditString = getPreeditString();
+        QList<QInputMethodEvent::Attribute> attrs = getPreeditAttrs(preeditString);
 
-	QString preeditString = getPreeditString();
-	if (!preeditString.isEmpty())
-	    updatePreedit(preeditString);
+        QInputMethodEvent e(preeditString, attrs);
+
+        QString commitString = getCommitString();
+        if (!commitString.isEmpty())
+            e.setCommitString(commitString);
+
+        if (m_focusObject != nullptr) {
+            QCoreApplication::sendEvent(m_focusObject, &e);
+        }
 
 	return ret;
     }
