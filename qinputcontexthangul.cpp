@@ -24,6 +24,7 @@
 #include <QTextFormat>
 #include <QWidget>
 #include <QWindow>
+#include <QRect>
 #include <QCoreApplication>
 #include <QGuiApplication>
 
@@ -57,7 +58,6 @@ static inline QString ucsToQString(const ucschar *ucs)
 QInputContextHangul::QInputContextHangul(const QStringList& paramList) :
     m_candidateList(NULL),
     m_mode(MODE_DIRECT),
-    m_rect(0, 0, 0, 0),
     m_focusObject(nullptr)
 {
     QString keyboard;
@@ -82,26 +82,6 @@ bool
 QInputContextHangul::isValid() const
 {
     return true;
-}
-
-void QInputContextHangul::setFocus()
-{
-    setModeInfo(m_mode);
-}
-
-void QInputContextHangul::unsetFocus()
-{
-    reset();
-
-    setModeInfo(MODE_NONE);
-}
-
-void QInputContextHangul::setMicroFocus(int x, int y, int w, int h, QFont* /*f*/)
-{
-    m_rect.setRect(x, y, w, h);
-    if (m_candidateList != NULL && m_candidateList->isVisible()) {
-	m_candidateList->move(x, y + h);
-    }
 }
 
 /**
@@ -342,20 +322,16 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
     return false;
 }
 
-bool QInputContextHangul::isComposing() const
-{
-    QString preeditString = getPreeditString();
-
-    if (!preeditString.isEmpty())
-	return true;
-    else
-	return false;
-}
-
 void
 QInputContextHangul::setFocusObject(QObject* object)
 {
     m_focusObject = object;
+
+    if (m_focusObject == nullptr) {
+        setModeInfo(MODE_NONE);
+    } else {
+        setModeInfo(m_mode);
+    }
 
     QPlatformInputContext::setFocusObject(object);
 }

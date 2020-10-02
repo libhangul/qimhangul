@@ -22,13 +22,11 @@
 #include "candidatelist.h"
 
 #include <QString>
-#include <QRect>
 #include <QInputMethodEvent>
 
 #include <qpa/qplatforminputcontext.h>
 
 class QEvent;
-class QFont;
 
 class QInputContextHangul : public QPlatformInputContext {
     Q_OBJECT
@@ -44,11 +42,6 @@ public:
     bool filterEvent(const QEvent* event) override;
 
     void setFocusObject(QObject* object);
-
-    virtual void setFocus();
-    virtual void unsetFocus();
-    virtual void setMicroFocus( int x, int y, int w, int h, QFont *f = 0 );
-    virtual bool isComposing() const;
 
     static HanjaTable* hanjaTable;
 
@@ -76,6 +69,5 @@ private:
     CandidateList *m_candidateList;
     HangulInputContext *m_hic;
     InputMode m_mode;
-    QRect m_rect;
     QObject* m_focusObject;
 };
