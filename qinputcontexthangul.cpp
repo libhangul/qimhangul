@@ -104,25 +104,49 @@ void QInputContextHangul::setMicroFocus(int x, int y, int w, int h, QFont* /*f*/
     }
 }
 
+/**
+ * @brief 현재 조합중인 한글을 취소하고 없애는 함수
+ */
 void QInputContextHangul::reset()
 {
+    // qDebug() << "QInputContextHangul::reset";
+
     if (m_candidateList != NULL && m_candidateList->isVisible()) {
 	m_candidateList->close();
     }
 
-    const ucschar *flushed = hangul_ic_flush(m_hic);
+    hangul_ic_reset(m_hic);
 
-    // we do not send preedit update IMEvent
-    // because commit() send InputMethodEnd event and it remove preedit string
-    // QString preeditString = getPreeditString();
-    // updatePreedit(preeditString);
+    QInputMethodEvent e;
+    sendEvent(m_focusObject, &e);
+}
 
-    QString commitString = ucsToQString(flushed);
-    if (!commitString.isEmpty()) {
-	commit(commitString);
-    } else {
-	updatePreedit("");
+/**
+ * @brief 현재 조합중인 한글을 완성하여 commit해 주는 함수
+ */
+void
+QInputContextHangul::commit()
+{
+    //qDebug() << "QInputContextHangul::commit";
+
+    if (m_candidateList != NULL && m_candidateList->isVisible()) {
+        m_candidateList->close();
     }
+
+    if (m_focusObject == nullptr) {
+        return;
+    }
+
+    const ucschar *flushed = hangul_ic_flush(m_hic);
+    QString commitString = ucsToQString(flushed);
+    if (commitString.isEmpty()) {
+        return;
+    }
+
+    // flush된 후이므로 preedit string이 없다.
+    QInputMethodEvent e;
+    e.setCommitString(commitString);
+    sendEvent(m_focusObject, &e);
 }
 
 QString QInputContextHangul::getPreeditString() const
@@ -180,7 +204,7 @@ void QInputContextHangul::updatePreedit(const QString &str)
     }
 
     QInputMethodEvent e(str, attrs);
-    QCoreApplication::sendEvent(m_focusObject, &e);
+    sendEvent(m_focusObject, &e);
 }
 
 void QInputContextHangul::commit(const QString &str)
@@ -191,7 +215,7 @@ void QInputContextHangul::commit(const QString &str)
 
     QInputMethodEvent e;
     e.setCommitString(str);
-    QCoreApplication::sendEvent(m_focusObject, &e);
+    sendEvent(m_focusObject, &e);
 }
 
 bool QInputContextHangul::isTriggerKey(const QKeyEvent *event)
@@ -270,7 +294,7 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
 	if (m_mode == MODE_DIRECT) {
 	    m_mode = MODE_HANGUL;
 	} else {
-	    reset();
+            commit();
 	    m_mode = MODE_DIRECT;
 	}
 	setModeInfo(m_mode);
@@ -285,7 +309,7 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
     if (keyevent->modifiers() & Qt::ControlModifier ||
 	keyevent->modifiers() & Qt::AltModifier ||
 	keyevent->modifiers() & Qt::MetaModifier) {
-	reset();
+        commit();
 	return false;
     }
 
@@ -310,9 +334,7 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
         if (!commitString.isEmpty())
             e.setCommitString(commitString);
 
-        if (m_focusObject != nullptr) {
-            QCoreApplication::sendEvent(m_focusObject, &e);
-        }
+        sendEvent(m_focusObject, &e);
 
 	return ret;
     }
@@ -336,4 +358,14 @@ QInputContextHangul::setFocusObject(QObject* object)
     m_focusObject = object;
 
     QPlatformInputContext::setFocusObject(object);
+}
+
+void
+QInputContextHangul::sendEvent(QObject* object, QInputMethodEvent* event)
+{
+    if (object == nullptr) {
+        return;
+    }
+
+    QCoreApplication::sendEvent(m_focusObject, event);
 }

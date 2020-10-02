@@ -39,6 +39,8 @@ public:
 
     bool isValid() const override;
 
+    void reset() override;
+    void commit() override;
     bool filterEvent(const QEvent* event) override;
 
     void setFocusObject(QObject* object);
@@ -46,7 +48,6 @@ public:
     virtual void setFocus();
     virtual void unsetFocus();
     virtual void setMicroFocus( int x, int y, int w, int h, QFont *f = 0 );
-    virtual void reset();
     virtual bool isComposing() const;
 
     static HanjaTable* hanjaTable;
@@ -70,6 +71,7 @@ private:
     bool backspace();
     bool popupCandidateList();
     void setModeInfo(int mode);
+    void sendEvent(QObject* object, QInputMethodEvent* event);
 
     CandidateList *m_candidateList;
     HangulInputContext *m_hic;
