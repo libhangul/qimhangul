@@ -25,14 +25,16 @@ QInputContextPluginHangul::QInputContextPluginHangul(QObject* parent/*= nullptr*
     QPlatformInputContextPlugin(parent)
 {
     if (QInputContextHangul::hanjaTable)
-	hanja_table_delete(QInputContextHangul::hanjaTable);
+        hanja_table_delete(QInputContextHangul::hanjaTable);
     QInputContextHangul::hanjaTable = hanja_table_load(NULL);
 }
 
 QInputContextPluginHangul::~QInputContextPluginHangul()
 {
-    if (QInputContextHangul::hanjaTable)
-	hanja_table_delete(QInputContextHangul::hanjaTable);
+    if (QInputContextHangul::hanjaTable) {
+        hanja_table_delete(QInputContextHangul::hanjaTable);
+        QInputContextHangul::hanjaTable = nullptr;
+    }
 }
 
 QPlatformInputContext*
