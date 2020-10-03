@@ -20,7 +20,6 @@
 
 #include <QDebug>
 #include <QInputMethodEvent>
-#include <QTextCodec>
 #include <QTextFormat>
 #include <QWidget>
 #include <QWindow>
@@ -34,15 +33,6 @@
 HanjaTable* QInputContextHangul::hanjaTable = NULL;
 
 static inline QString ucsToQString(const ucschar *ucs);
-
-static bool
-onTransition(HangulInputContext* /* hic */,
-	     ucschar /* c */, const ucschar *str, void* /* data */)
-{
-    QTextCodec *codec = QTextCodec::codecForLocale();
-    QString s = ucsToQString(str);
-    return codec->canEncode(s);
-}
 
 static inline QString ucsToQString(const ucschar *ucs)
 {
@@ -67,7 +57,6 @@ QInputContextHangul::QInputContextHangul(const QStringList& paramList) :
         keyboard = paramList.front();
     }
     m_hic = hangul_ic_new(keyboard.toUtf8());
-    hangul_ic_connect_callback(m_hic, "transition", (void*)onTransition, NULL);
 }
 
 QInputContextHangul::~QInputContextHangul()
