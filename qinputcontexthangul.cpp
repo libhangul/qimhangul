@@ -32,19 +32,6 @@
 
 HanjaTable* QInputContextHangul::hanjaTable = NULL;
 
-static inline QString ucsToQString(const ucschar *ucs);
-
-static inline QString ucsToQString(const ucschar *ucs)
-{
-    QString str;
-
-    if (ucs != NULL) {
-	while (*ucs != 0)
-	    str += QChar(*ucs++);
-    }
-    return str;
-}
-
 QInputContextHangul::QInputContextHangul(const QStringList& paramList) :
     m_candidateList(NULL),
     m_mode(MODE_DIRECT),
@@ -107,7 +94,7 @@ QInputContextHangul::commit()
     }
 
     const ucschar *flushed = hangul_ic_flush(m_hic);
-    QString commitString = ucsToQString(flushed);
+    QString commitString = QString::fromUcs4(flushed);
     if (commitString.isEmpty()) {
         return;
     }
@@ -120,7 +107,8 @@ QInputContextHangul::commit()
 
 QString QInputContextHangul::getPreeditString() const
 {
-    return ucsToQString(hangul_ic_get_preedit_string(m_hic));
+    const ucschar* str = hangul_ic_get_preedit_string(m_hic);
+    return QString::fromUcs4(str);
 }
 
 QList<QInputMethodEvent::Attribute>
@@ -150,7 +138,8 @@ QInputContextHangul::getPreeditAttrs(const QString& preeditString)
 
 QString QInputContextHangul::getCommitString() const
 {
-    return ucsToQString(hangul_ic_get_commit_string(m_hic));
+    const ucschar* str = hangul_ic_get_commit_string(m_hic);
+    return QString::fromUcs4(str);
 }
 
 void QInputContextHangul::updatePreedit(const QString &str)
