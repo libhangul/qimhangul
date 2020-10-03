@@ -1,23 +1,31 @@
 qimhangul에 대해서
-qimhangul은 Qt-immodule 패치된 Qt를 위한 한글 입력 모듈입니다.
-Qt-immodule에 대해서는 아래 링크를 참고하세요:
-http://www.freedesktop.org/Software/immodule-qt
+==================
 
-빌드하기 위해서는 libhangul 패키지 0.0.4 버젼 이상이 필요합니다.
+qimhangul은 Qt를 위한 한글 입력 모듈입니다.
+별도의 입력기 프레임워크없이 libhangul을 통해서 바로 작동하는
+방식입니다.
+
+빌드하기 위해서는 libhangul 패키지 0.0.12 버젼 이상이 필요합니다.
 libhangul은 다음 링크에서 구하실 수 있습니다.
-http://kldp.net/projects/hangul/
+https://github.com/libhangul/libhangul
 
 빌드와 설치 방법
- $ ./configure 또는 ./configure --with-qt-plugin-dir=[Qt plugin 디렉토리]
+```
+ $ mkdir build
+ $ cd build
+ $ cmake .. -DCMAKE_BUILD_TYPE=Release [-DQT_INPUTCONTEXT_PLUGIN_DIR=...]
  $ make
  # make install
+```
 
 설정 방법
-환경 변수 QT_IM_MODULE=hangul2 을 설정하시면 기본 입력기로 사용하게 됩니다.
+환경 변수 QT_IM_MODULE=qimhangul 을 설정하시면 기본 입력기로 사용하게 됩니다.
+기본 자판은 두벌식으로 다른 자판을 선택하려면 아래와 같이 설정합니다.
+
 자판에 따른 환경 변수 값은 아래와 같습니다.
-두벌식	    hangul2
-세벌식최종  hangul3f
-세벌식390   hangul390
+두벌식	    qimhangul:2
+세벌식최종  qimhangul:3f
+세벌식390   qimhangul:390
 
 사용 방법
 한영 전환키는 Shift+Space, Hangul키 입니다.
@@ -25,17 +33,20 @@ http://kldp.net/projects/hangul/
 
 
 What is qimhangul?
-Qimhangul is a korean input method module for Qt that qt-immodule patch is
-applied to. About qt-module patch, see this link,
-http://www.freedesktop.org/Software/immodule-qt
+==================
+
+Qimhangul is a korean input method module for Qt.
 
 You need libhangul to build qimhangul. You can get libhangul here:
-http://kldp.net/projects/hangul/
 
 How to build and install
- $ ./configure or ./configure --with-qt-plugin-dir=[where your Qt plugin dir is]
+```
+ $ mkdir build
+ $ cd build
+ $ cmake .. -DCMAKE_BUILD_TYPE=Release [-DQT_INPUTCONTEXT_PLUGIN_DIR=...]
  $ make
  # make install
+```
 
 For further information
- see http://kldp.net/projects/qimhangul/
+see https://github.com/libhangul/qimhangul
