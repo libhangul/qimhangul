@@ -30,6 +30,8 @@ pkg_check_modules(LIBHANGUL libhangul REQUIRED)
 set(CMAKE_AUTOMOC TRUE)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
+set(QT_INPUTCONTEXT_PLUGIN_DIR "" CACHE PATH "Qt platform input context plugin install location")
+
 set(qimhangulinputcontextplugin_SOURCES
     candidatelist.cpp
     candidatelist.h
@@ -72,6 +74,16 @@ target_link_libraries(qimhangulinputcontextplugin
         ${LIBHANGUL_LINK_LIBRARIES}
 )
 
+if("${QT_INPUTCONTEXT_PLUGIN_DIR}" STREQUAL "")
+    # 시스템의 Qt plugin 설치위치는 CMake로 제공하는 것이 없다.
+    # QComposePlatformInputContextPlugin은 Qt5Gui가 기본으로 인스톨하는
+    # 플러긴이므로 QComposePlatformInputContextPlugin의 위치를 사용한다.
+    get_target_property(pluginfile Qt5::QComposePlatformInputContextPlugin LOCATION)
+    get_filename_component(QT_INPUTCONTEXT_PLUGIN_DIR ${pluginfile} DIRECTORY)
+endif()
+
+install(TARGETS qimhangulinputcontextplugin DESTINATION ${QT_INPUTCONTEXT_PLUGIN_DIR})
+
 if (Qt5X11Extras_FOUND)
 target_compile_definitions(qimhangulinputcontextplugin
     PRIVATE
@@ -88,3 +100,9 @@ target_link_libraries(qimhangulinputcontextplugin
         ${Qt5X11Extras_LIBRARIES}
 )
 endif() # if (Qt5X11Extras_FOUND)
+
+message(STATUS "Configurations")
+message(STATUS "CMAKE_BUILD_TYPE:              ${CMAKE_BUILD_TYPE}")
+message(STATUS "Qt include dir:                ${Qt5Widgets_INCLUDE_DIRS}")
+message(STATUS "libhangul include dir:         ${LIBHANGUL_INCLUDE_DIRS}")
+message(STATUS "QT_INPUTCONTEXT_PLUGIN_DIR:    ${QT_INPUTCONTEXT_PLUGIN_DIR}")
