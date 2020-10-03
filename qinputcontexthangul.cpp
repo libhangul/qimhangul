@@ -142,29 +142,6 @@ QString QInputContextHangul::getCommitString() const
     return QString::fromUcs4(str);
 }
 
-void QInputContextHangul::updatePreedit(const QString &str)
-{
-    if (m_focusObject == nullptr) {
-        return;
-    }
-
-    QList<QInputMethodEvent::Attribute> attrs;
-
-    QWidget* widget = qobject_cast<QWidget*>(m_focusObject);
-    if (widget != NULL) {
-        const QPalette& palette = widget->palette();
-
-        QTextCharFormat format;
-        format.setBackground(palette.color(QPalette::Text));
-        format.setForeground(palette.color(QPalette::Window));
-        attrs += QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
-                0, str.length(), format);
-    }
-
-    QInputMethodEvent e(str, attrs);
-    sendEvent(m_focusObject, &e);
-}
-
 void QInputContextHangul::commit(const QString &str)
 {
     if (m_focusObject == nullptr) {
@@ -188,12 +165,16 @@ bool QInputContextHangul::isCandidateKey(const QKeyEvent *event)
 	   (event->key() == Qt::Key_F9);
 }
 
-bool QInputContextHangul::backspace()
+bool
+QInputContextHangul::processBackspace()
 {
     bool ret = hangul_ic_backspace(m_hic);
     if (ret) {
-	QString str = getPreeditString();
-	updatePreedit(str);
+        QString preeditString = getPreeditString();
+        QList<QInputMethodEvent::Attribute> attrs = getPreeditAttrs(preeditString);
+
+        QInputMethodEvent e(preeditString, attrs);
+        sendEvent(m_focusObject, &e);
     }
     return ret;
 }
@@ -246,7 +227,7 @@ bool QInputContextHangul::filterEvent(const QEvent *event)
 	return false;
 
     if (keyevent->key() == Qt::Key_Backspace)
-	return backspace();
+        return processBackspace();
 
     if (isTriggerKey(keyevent)) {
 	if (m_mode == MODE_DIRECT) {

@@ -59,9 +59,8 @@ private:
     QString getPreeditString() const;
     QList<QInputMethodEvent::Attribute> getPreeditAttrs(const QString& preeditString);
     QString getCommitString() const;
-    void updatePreedit(const QString &str);
     void commit(const QString &str);
-    bool backspace();
+    bool processBackspace();
     bool popupCandidateList();
     void setModeInfo(int mode);
     void sendEvent(QObject* object, QInputMethodEvent* event);
