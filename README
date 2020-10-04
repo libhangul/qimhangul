@@ -19,13 +19,13 @@ https://github.com/libhangul/libhangul
 ```
 
 설정 방법
-환경 변수 QT_IM_MODULE=qimhangul 을 설정하시면 기본 입력기로 사용하게 됩니다.
+환경 변수 QT_IM_MODULE=hangul 을 설정하시면 기본 입력기로 사용하게 됩니다.
 기본 자판은 두벌식으로 다른 자판을 선택하려면 아래와 같이 설정합니다.
 
 자판에 따른 환경 변수 값은 아래와 같습니다.
-두벌식	    qimhangul:2
-세벌식최종  qimhangul:3f
-세벌식390   qimhangul:390
+두벌식      hangul:2
+세벌식최종  hangul:3f
+세벌식390   hangul:390
 
 사용 방법
 한영 전환키는 Shift+Space, Hangul키 입니다.
