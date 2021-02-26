@@ -10,18 +10,11 @@
 
 void QInputContextHangul::setModeInfo(int mode)
 {
-    Display* display = NULL;
-    int screen = 0;
-
-    QWidget* focus = focusWidget();
-    if (focus != NULL) {
-	display = focus->x11Info().display();
-	screen = focus->x11Info().appScreen();
-    }
+    Display* display = QX11Info::display();
 
     if (display != NULL) {
 	long data = mode;
-	Window window = RootWindow(display, screen);
+        Window window = QX11Info::appRootWindow();
 	Atom status = XInternAtom(display, "_HANGUL_INPUT_MODE", False);
 	Atom type = XInternAtom(display, "INTEGER", False);
 

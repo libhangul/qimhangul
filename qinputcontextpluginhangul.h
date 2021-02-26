@@ -18,19 +18,16 @@
 
 #include <QString>
 #include <QStringList>
-#include <QInputContextPlugin>
+#include <qpa/qplatforminputcontextplugin_p.h>
 
-class QInputContextPluginHangul : public QInputContextPlugin
+class QInputContextPluginHangul : public QPlatformInputContextPlugin
 {
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID QPlatformInputContextFactoryInterface_iid FILE "qimhangul.json")
+
 public:
-    QInputContextPluginHangul();
+    QInputContextPluginHangul(QObject* parent = nullptr);
     ~QInputContextPluginHangul();
 
-    virtual QStringList keys() const;
-    virtual QInputContext* create(const QString &key);
-    virtual QStringList languages( const QString &key);
-    virtual QString displayName( const QString &key );
-    virtual QString description( const QString &key );
+    QPlatformInputContext* create(const QString &key, const QStringList& paramList) override;
 };
-
-Q_EXPORT_PLUGIN(QInputContextPluginHangul)

@@ -22,27 +22,26 @@
 #include "candidatelist.h"
 
 #include <QString>
-#include <QRect>
-#include <QInputContext>
+#include <QInputMethodEvent>
+
+#include <qpa/qplatforminputcontext.h>
 
 class QEvent;
-class QFont;
 
-class QInputContextHangul : public QInputContext {
+class QInputContextHangul : public QPlatformInputContext {
+    Q_OBJECT
+
 public:
-    QInputContextHangul(const char* keyboard);
+    QInputContextHangul(const QStringList& paramList);
     ~QInputContextHangul();
-    
-    virtual QString identifierName();
-    virtual QString language();
 
-    virtual bool filterEvent( const QEvent *event );
+    bool isValid() const override;
 
-    virtual void setFocus();
-    virtual void unsetFocus();
-    virtual void setMicroFocus( int x, int y, int w, int h, QFont *f = 0 );
-    virtual void reset();
-    virtual bool isComposing() const;
+    void reset() override;
+    void commit() override;
+    bool filterEvent(const QEvent* event) override;
+
+    void setFocusObject(QObject* object);
 
     static HanjaTable* hanjaTable;
 
@@ -58,21 +57,16 @@ private:
     bool isTriggerKey(const QKeyEvent *event);
     bool isCandidateKey(const QKeyEvent *event);
     QString getPreeditString() const;
+    QList<QInputMethodEvent::Attribute> getPreeditAttrs(const QString& preeditString);
     QString getCommitString() const;
-    void updatePreedit(const QString &str);
     void commit(const QString &str);
-    bool backspace();
+    bool processBackspace();
     bool popupCandidateList();
     void setModeInfo(int mode);
+    void sendEvent(QObject* object, QInputMethodEvent* event);
 
     CandidateList *m_candidateList;
     HangulInputContext *m_hic;
     InputMode m_mode;
-    QRect m_rect;
+    QObject* m_focusObject;
 };
-
-#if !defined(Q_WS_X11)
-inline void QInputContextHangul::setModeInfo(int /*mode*/)
-{
-}
-#endif

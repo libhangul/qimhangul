@@ -1,12 +1,15 @@
 # qimhangul project file
 
 TEMPLATE = lib
-TARGET = qimhangul
+TARGET = qimhangulinputcontextplugin
 VERSION = 0.2.0
 DISTFILES += ChangeLog ChangeLog.old COPYING AUTHORS README
 QT_PLUGIN_DIR = $$[QT_INSTALL_PLUGINS]
 
-target.path = $${QT_PLUGIN_DIR}/inputmethods
+QT += core gui widgets gui-private x11extras
+
+target.path = $${QT_PLUGIN_DIR}/platforminputcontexts
+DESTDIR = platforminputcontexts
 INSTALLS += target
 
 CONFIG += debug plugin qt thread
@@ -27,4 +30,6 @@ LIBS += $$system(pkg-config libhangul --libs)
 
 unix {
     SOURCES += qinputcontexthangul_x11.cpp
+} else {
+    SOURCES += qinputcontexthangul_dummy.cpp
 }
